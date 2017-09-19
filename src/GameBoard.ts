@@ -1,7 +1,9 @@
 import Point from './Point';
 import Trajectory from './Trajectory';
 import Ball from './Ball';
+import Block from './Block';
 import ballConfig from './interfaces/BallConfig';
+import BlockConfig from './interfaces/BlockConfig';
 import Size from './interfaces/Size';
 import Paddle from './Paddle';
 
@@ -23,7 +25,7 @@ export default class GameBoard {
     balls: Array<Ball>;
     size:Size;
     domElement: SVGElement;
-    renderedBlocks: Array<SVGRectElement>;
+    renderedBlocks: Array<Block>;
     paddle: Paddle;
 
     constructor(size:Size, domNode:HTMLElement) {
@@ -38,7 +40,7 @@ export default class GameBoard {
         this.domElement.setAttribute('style', 'border:1px solid black;');
         domNode.appendChild(this.domElement);
     }
-    init(blocks:Array<Point>, balls:Array<ballConfig>):void {
+    init(blocks:Array<BlockConfig>, balls:Array<ballConfig>):void {
         // build stuff
         this.renderedBlocks = this.renderBlocks(blocks);
         this.balls = this.renderBalls(balls);
@@ -72,46 +74,28 @@ export default class GameBoard {
         var builtBalls = balls.map(this.buildBall, this);
         return builtBalls;
     }
-    renderBlocks(blocks:Array<Point>) {
-        // TODO: make blocks its own class - then can create more complex blocks
-        //          -- blocks that need multiple hits to destroy
-        //          -- blocks that drop rewards
-        //          -- animations on hit
+    renderBlocks(blocks:Array<BlockConfig>):Array<Block> {
         return blocks.map(this.renderBlock, this);
     }
-    renderBlock(block:Point):SVGRectElement {
-        // TODO: use Block class
-        var rect:SVGRectElement = document.createElementNS(
-            "http://www.w3.org/2000/svg",
-            'rect'
-        );
-
-        rect.setAttribute('x', String(block.x));
-        rect.setAttribute('y', String(block.y));
-        rect.setAttribute('width', '3');
-        rect.setAttribute('height', '3');
-        rect.setAttribute('fill', 'gray');
-        rect.setAttribute('stroke', 'black');
-        rect.setAttribute('stroke-width', '0.5');
-        this.domElement.appendChild(rect);
-        return rect;
+    renderBlock(block:BlockConfig):Block {
+        return new Block(block, this.domElement);
     }
-    destroyBlock(block:SVGRectElement):void {
-        this.renderedBlocks.splice( Number(block.getAttribute('index')), 1 );
-        this.domElement.removeChild(block);
+    destroyBlock(block:Block):void {
+        this.renderedBlocks.splice( block.index, 1 );
+        block.destroy();
     }
-    getBlock(point:Point):SVGRectElement {
-        var block:SVGRectElement;
-        this.renderedBlocks.some((b:SVGRectElement, i:number) => {
-            var blockX:number = +b.getAttribute('x'),
-                blockY:number = +b.getAttribute('y'),
-                width:number = +b.getAttribute('width'),
-                height:number = +b.getAttribute('height');
+    getBlock(point:Point):Block {
+        var block:Block;
+        this.renderedBlocks.some((b:Block, i:number) => {
+            var blockX:number = b.point.x,
+                blockY:number = b.point.y,
+                width:number = b.size.width,
+                height:number = b.size.height;
             
             if (hitsIt(point.x, blockX, width) &&
                 hitsIt(point.y, blockY, height)) {
                 block = b;
-                block.setAttribute('index', String(i));
+                block.setIndex( i );
             }
             return Boolean(block);
         });
@@ -136,7 +120,7 @@ export default class GameBoard {
             var nxtPos:Point = ball.getNextPosition(),
                 hitBlockX:boolean,
                 hitBlockY:boolean,
-                block:Point;
+                block:Block;
             if (nxtPos.x < 0 || nxtPos.x > this.size.width) {
                 ball.invert('x');
             }
@@ -151,26 +135,32 @@ export default class GameBoard {
             }
 
             nxtPos = ball.getNextPosition();
-            block = this.getBlock({x:nxtPos.x,y:ball.y});
+            block = this.getBlock({x:nxtPos.x,y:ball.point.y});
             if (block) {
                 hitBlockX = true;
                 ball.invert('x');
-                this.destroyBlock(block);
+                if (block.getHit() === 0) {
+                    this.destroyBlock(block);
+                }
             }
 
             nxtPos = ball.getNextPosition();
-            block = this.getBlock({x:ball.x,y:nxtPos.y});
+            block = this.getBlock({x:ball.point.x,y:nxtPos.y});
             if (block) {
                 hitBlockY = true;
                 ball.invert('y');
-                this.destroyBlock(block);
+                if (block.getHit() === 0) {
+                    this.destroyBlock(block);
+                }
             }
             if (!hitBlockX && !hitBlockY) {
                 block = this.getBlock(nxtPos);
                 if (block) {
                     ball.invert('y');
                     ball.invert('x');
-                    this.destroyBlock(block);
+                    if (block.getHit() === 0) {
+                        this.destroyBlock(block);
+                    }
                 }
             }
             nxtPos = ball.getNextPosition();

@@ -1,12 +1,12 @@
 const blocks = [
-    {x:11, y:20},
-    {x:14, y:20},
-    {x:17, y:20},
-    {x:20, y:20},
-    {x:23, y:20},
-    {x:26, y:20},
-    {x:29, y:20},
-    {x:32, y:20},
+    { point: {x:11, y:20}, size:{width:3, height:3}},
+    { point: {x:14, y:20}, size:{width:3, height:3}},
+    { point: {x:17, y:20}, size:{width:3, height:3}},
+    { point: {x:20, y:20}, size:{width:3, height:3}},
+    { point: {x:23, y:20}, size:{width:3, height:3}},
+    { point: {x:26, y:20}, size:{width:3, height:3}},
+    { point: {x:29, y:20}, size:{width:3, height:3}},
+    { point: {x:32, y:20}, size:{width:3, height:3}},
 ];
 
 export default blocks;

@@ -56,7 +56,7 @@ var config = {
       output: { comments: false },
       sourceMap: true
     }),
-    new DashboardPlugin(),
+    new DashboardPlugin({ port: 11111 }),
     new webpack.LoaderOptionsPlugin({
       options: {
         tslint: {
@@ -69,7 +69,7 @@ var config = {
   devServer: {
     contentBase: path.join(__dirname, "dist/"),
     compress: true,
-    port: 3000,
+    port: 3002,
     hot: true
   }
 };
