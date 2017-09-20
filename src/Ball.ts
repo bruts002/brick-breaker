@@ -6,8 +6,10 @@ export default class Ball {
     traj: Trajectory;
     point: Point;
     r: number;
-    domElement: SVGCircleElement;
-    constructor( ballConfig:ballConfig ) {
+    private domElement: SVGCircleElement;
+    private mountPoint: SVGElement;
+
+    constructor( ballConfig:ballConfig, mountPoint?:SVGElement ) {
         this.traj = new Trajectory(ballConfig.trajectory);
         this.point = ballConfig.point;
         this.r = ballConfig.radius;
@@ -15,28 +17,28 @@ export default class Ball {
         this.domElement.setAttribute('cx', String(this.point.x));
         this.domElement.setAttribute('cy', String(this.point.y));
         this.domElement.setAttribute('r', String(this.r));
+        if ( mountPoint ) {
+            mountPoint.appendChild(this.domElement );
+        }
     }
-    attachTo( element:SVGElement ) {
-        element.appendChild(this.domElement);
-    }
-    invert( axis:any ) {
+    public invert( axis:any ) {
         this.traj.invert(axis);
     }
-    update( point:Point ) {
+    public update( point:Point ) {
         this.point = point;
         this.updateDOM();
     }
-    updateDOM() {
+    public updateDOM() {
         this.domElement.setAttribute('cx', String(this.point.x));
         this.domElement.setAttribute('cy', String(this.point.y));
     }
-    getNextPosition() {
+    public getNextPosition() {
         return {
             x: this.point.x + this.traj.x,
             y: this.point.y + this.traj.y
         };
     }
-    destroy( element:SVGElement ) {
+    public destroy( element:SVGElement ) {
         // TODO: add some cool animations on destroy
         element.removeChild(this.domElement);
     }

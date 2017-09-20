@@ -65,12 +65,10 @@ export default class GameBoard {
             this.domElement
         );
     }
-    buildBall(ballConfig:ballConfig):Ball {
-        var ball = new Ball(ballConfig);
-        ball.attachTo(this.domElement);
-        return ball;
+    buildBall( ballConfig:ballConfig ):Ball {
+        return new Ball( ballConfig, this.domElement );
     }
-    renderBalls(balls:Array<ballConfig>):Array<Ball> {
+    renderBalls( balls:Array<ballConfig> ):Array<Ball> {
         var builtBalls = balls.map(this.buildBall, this);
         return builtBalls;
     }
@@ -80,20 +78,17 @@ export default class GameBoard {
     renderBlock(block:BlockConfig):Block {
         return new Block(block, this.domElement);
     }
-    destroyBlock(block:Block):void {
-        this.renderedBlocks.splice( block.index, 1 );
-        block.destroy();
+    destroyBlock( index:number ):void {
+        this.renderedBlocks.splice( index, 1 );
     }
     getBlock(point:Point):Block {
         var block:Block;
         this.renderedBlocks.some((b:Block, i:number) => {
-            var blockX:number = b.point.x,
-                blockY:number = b.point.y,
-                width:number = b.size.width,
-                height:number = b.size.height;
+            var blockPoint = b.getPoint(),
+                blockSize = b.getSize();
             
-            if (hitsIt(point.x, blockX, width) &&
-                hitsIt(point.y, blockY, height)) {
+            if (hitsIt(point.x, blockPoint.x, blockSize.width) &&
+                hitsIt(point.y, blockPoint.y, blockSize.height)) {
                 block = b;
                 block.setIndex( i );
             }
@@ -108,7 +103,7 @@ export default class GameBoard {
     }
     updateBalls():void {
         var ballsToDelete:Array<number> = [],
-            offset:number;
+            offset:number = 0;
         // for each ball
         // get new pos
         // check pos
@@ -118,13 +113,15 @@ export default class GameBoard {
         // send new pos
         this.balls.forEach(function(ball:Ball, index:number) {
             var nxtPos:Point = ball.getNextPosition(),
+                paddlePos = this.paddle.getPoint(),
+                paddleSize = this.paddle.getSize(),
                 hitBlockX:boolean,
                 hitBlockY:boolean,
                 block:Block;
             if (nxtPos.x < 0 || nxtPos.x > this.size.width) {
                 ball.invert('x');
             }
-            if (nxtPos.y < 0 || (hitsIt(nxtPos.x, this.paddle.x, this.paddle.size.width) && hitsIt(nxtPos.y, this.paddle.y, this.paddle.size.height))) {
+            if (nxtPos.y < 0 || (hitsIt(nxtPos.x, paddlePos.x, paddleSize.width) && hitsIt(nxtPos.y, paddlePos.y, paddleSize.height))) {
                 ball.invert('y');
             }
             if (nxtPos.y >= this.size.height) {
@@ -140,7 +137,7 @@ export default class GameBoard {
                 hitBlockX = true;
                 ball.invert('x');
                 if (block.getHit() === 0) {
-                    this.destroyBlock(block);
+                    this.destroyBlock( index );
                 }
             }
 
@@ -150,7 +147,7 @@ export default class GameBoard {
                 hitBlockY = true;
                 ball.invert('y');
                 if (block.getHit() === 0) {
-                    this.destroyBlock(block);
+                    this.destroyBlock( index );
                 }
             }
             if (!hitBlockX && !hitBlockY) {
@@ -159,7 +156,7 @@ export default class GameBoard {
                     ball.invert('y');
                     ball.invert('x');
                     if (block.getHit() === 0) {
-                        this.destroyBlock(block);
+                        this.destroyBlock( index );
                     }
                 }
             }
