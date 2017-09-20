@@ -28,10 +28,10 @@ export default class Paddle extends AbstractElement {
         mountPoint.appendChild(this.domElement);
     }
     public move(direction:string):void {
-        if (direction === 'left' && this.point.x > 0) {
+        if (direction === 'left' && this.point.x > 3) {
             this.point.x = this.point.x - 3;
             this.domElement.setAttribute('x', String(this.point.x));
-        } else if (direction === 'right' && this.point.y < this.boardSize.width) {
+        } else if (direction === 'right' && this.point.x + this.size.width + 3 < this.boardSize.width) {
             this.point.x = this.point.x + 3;
             this.domElement.setAttribute('x', String(this.point.x));
         }
