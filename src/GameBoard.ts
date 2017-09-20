@@ -5,21 +5,8 @@ import ballConfig from './interfaces/BallConfig';
 import BlockConfig from './interfaces/BlockConfig';
 import Size from './interfaces/Size';
 import Paddle from './Paddle';
+import CollisionUtil from './CollisionUtil';
 
-function hitsIt(pointX:number, blockStart:number, width:number):boolean {
-    var val = (blockStart + width) - pointX;
-    return val >= 0 && val <= width;
-}
-// TODO replace calls to `hitsIt` with `isCollision` and test
-// TODO: make isCollision be abstract, taking input Types (block|ball|paddle)
-//      and delegating work to functions that handle that case
-function isCollision(p1:Point, p2:Point, size:Size):boolean {
-    var xDif:number = (p2.x + size.width) - p1.x;
-    var xCollide:boolean = xDif >= 0 && xDif <= size.width;
-    var yDif:number = (p2.y + size.height) - p2.y;
-    var yCollide:boolean = yDif >= 0 && yDif <= size.height;
-    return xCollide && yCollide;
-}
 export default class GameBoard {
     balls: Array<Ball>;
     size:Size;
@@ -86,8 +73,8 @@ export default class GameBoard {
             var blockPoint = b.getPoint(),
                 blockSize = b.getSize();
             
-            if (hitsIt(point.x, blockPoint.x, blockSize.width) &&
-                hitsIt(point.y, blockPoint.y, blockSize.height)) {
+            // TODO: check if the ball is even near before wastefully checking for collisions every time
+            if ( CollisionUtil.isCollision( point, blockPoint, blockSize ) ) {
                 block = b;
                 block.setIndex( i );
             }
@@ -123,7 +110,7 @@ export default class GameBoard {
                 ball.invert('x');
             }
             // check if hit top wall or paddle
-            if (nxtPos.y < 0 || (hitsIt(nxtPos.x, paddlePos.x, paddleSize.width) && hitsIt(nxtPos.y, paddlePos.y, paddleSize.height))) {
+            if (nxtPos.y < 0 || CollisionUtil.isCollision(nxtPos, paddlePos, paddleSize)) {
                 ball.invert('y');
             }
             // check if fell off screen
