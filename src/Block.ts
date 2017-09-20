@@ -12,7 +12,7 @@ export default class Ball extends AbstractElement {
     public index: number;
 
     private domElement: SVGRectElement;
-    private mountNode:SVGElement;
+    private mountNode: SVGElement;
     private lives: number;
 
     public constructor( config:BlockConfig, mountNode:SVGElement ) {
@@ -36,7 +36,8 @@ export default class Ball extends AbstractElement {
         this.domElement.setAttribute('stroke', 'black');
         this.domElement.setAttribute('stroke-width', '0.5');
 
-        mountNode.appendChild(this.domElement);
+        this.mountNode = mountNode
+        this.mountNode.appendChild(this.domElement);
     }
     public destroy() {
         // TODO: add some cool animations on destroy
@@ -47,7 +48,7 @@ export default class Ball extends AbstractElement {
     }
     public getHit():number{
         this.lives--;
-        if (this.lives === 0) {
+        if (this.lives <= 0) {
             this.destroy();
         }
         return this.lives;

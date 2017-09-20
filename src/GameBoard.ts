@@ -1,5 +1,4 @@
 import Point from './Point';
-import Trajectory from './Trajectory';
 import Ball from './Ball';
 import Block from './Block';
 import ballConfig from './interfaces/BallConfig';
@@ -81,7 +80,7 @@ export default class GameBoard {
     destroyBlock( index:number ):void {
         this.renderedBlocks.splice( index, 1 );
     }
-    getBlock(point:Point):Block {
+    getBlock( point:Point ):Block {
         var block:Block;
         this.renderedBlocks.some((b:Block, i:number) => {
             var blockPoint = b.getPoint(),
@@ -102,8 +101,10 @@ export default class GameBoard {
         // this.updateBlocks();
     }
     updateBalls():void {
-        var ballsToDelete:Array<number> = [],
-            offset:number = 0;
+        var ballsToDelete:Array<number> = [];
+        var offset:number = 0;
+        const paddlePos:Point = this.paddle.getPoint();
+        const paddleSize:Size = this.paddle.getSize();
         // for each ball
         // get new pos
         // check pos
@@ -112,18 +113,20 @@ export default class GameBoard {
         //  invert trajectory
         // send new pos
         this.balls.forEach(function(ball:Ball, index:number) {
-            var nxtPos:Point = ball.getNextPosition(),
-                paddlePos = this.paddle.getPoint(),
-                paddleSize = this.paddle.getSize(),
-                hitBlockX:boolean,
-                hitBlockY:boolean,
-                block:Block;
+            var nxtPos:Point = ball.getNextPosition();
+            var hitBlockX:boolean;
+            var hitBlockY:boolean;
+            var block:Block;
+
+            // check if it side wall
             if (nxtPos.x < 0 || nxtPos.x > this.size.width) {
                 ball.invert('x');
             }
+            // check if hit top wall or paddle
             if (nxtPos.y < 0 || (hitsIt(nxtPos.x, paddlePos.x, paddleSize.width) && hitsIt(nxtPos.y, paddlePos.y, paddleSize.height))) {
                 ball.invert('y');
             }
+            // check if fell off screen
             if (nxtPos.y >= this.size.height) {
                 ballsToDelete.push(index);
                 // TODO: make sure it gets deleted, don't want a memory leak
@@ -131,6 +134,7 @@ export default class GameBoard {
                 return;
             }
 
+            // check if ball in front of x path
             nxtPos = ball.getNextPosition();
             block = this.getBlock({x:nxtPos.x,y:ball.point.y});
             if (block) {
@@ -141,6 +145,7 @@ export default class GameBoard {
                 }
             }
 
+            // check if ball in front of y path
             nxtPos = ball.getNextPosition();
             block = this.getBlock({x:ball.point.x,y:nxtPos.y});
             if (block) {
@@ -150,6 +155,7 @@ export default class GameBoard {
                     this.destroyBlock( index );
                 }
             }
+            // check if ball in front of xy path (corner hit)
             if (!hitBlockX && !hitBlockY) {
                 block = this.getBlock(nxtPos);
                 if (block) {
