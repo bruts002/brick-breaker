@@ -9,7 +9,7 @@ import AbstractElement from './AbstractElement';
         //          -- animations on hit
 
 export default class Ball extends AbstractElement {
-    public index: number;
+    public index: number = -1;
 
     private domElement: SVGRectElement;
     private mountNode: SVGElement;

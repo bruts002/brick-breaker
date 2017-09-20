@@ -141,7 +141,9 @@ export default class GameBoard {
                 hitBlockX = true;
                 ball.invert('x');
                 if (block.getHit() === 0) {
-                    this.destroyBlock( index );
+                    this.destroyBlock( block.index );
+                } else {
+                    block.setIndex(-1);
                 }
             }
 
@@ -152,7 +154,9 @@ export default class GameBoard {
                 hitBlockY = true;
                 ball.invert('y');
                 if (block.getHit() === 0) {
-                    this.destroyBlock( index );
+                    this.destroyBlock( block.index );
+                } else {
+                    block.setIndex(-1);
                 }
             }
             // check if ball in front of xy path (corner hit)
@@ -162,7 +166,9 @@ export default class GameBoard {
                     ball.invert('y');
                     ball.invert('x');
                     if (block.getHit() === 0) {
-                        this.destroyBlock( index );
+                        this.destroyBlock( block.index );
+                    } else {
+                        block.setIndex(-1);
                     }
                 }
             }
