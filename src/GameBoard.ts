@@ -73,8 +73,8 @@ export default class GameBoard {
             var blockPoint = b.getPoint(),
                 blockSize = b.getSize();
             
-            // TODO: check if the ball is even near before wastefully checking for collisions every time
-            if ( CollisionUtil.isCollision( point, blockPoint, blockSize ) ) {
+            if ( CollisionUtil.isNear( point, blockPoint, blockSize ) &&
+                 CollisionUtil.isCollision( point, blockPoint, blockSize ) ) {
                 block = b;
                 block.setIndex( i );
             }
