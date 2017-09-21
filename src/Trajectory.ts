@@ -2,6 +2,7 @@ import Point from './Point';
 export default class Trajectory {
     x:number;
     y:number;
+    // TODO should not use Point, but create a Vector class/type and use that
     constructor(point:Point) {
         this.x = point.x;
         this.y = point.y;

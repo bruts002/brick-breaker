@@ -5,14 +5,16 @@ export default class Paddle extends AbstractElement {
 
     private boardSize: Size;
     private domElement: SVGRectElement;
+    private emitBullet: Function;
 
-    constructor( size:Size, x:number, boardSize:Size, mountPoint:SVGElement ) {
+    constructor( size:Size, x:number, boardSize:Size, mountPoint:SVGElement, emitBullet:Function ) {
         var paddlePoint = {
             x,
             y:boardSize.height - size.height - 0.5
         };
         super( paddlePoint, size );
         /** Assuming the paddle is always bottom aligned */
+        this.emitBullet = emitBullet;
         this.boardSize = boardSize;
         this.domElement = document.createElementNS(
             "http://www.w3.org/2000/svg",
@@ -35,5 +37,15 @@ export default class Paddle extends AbstractElement {
             this.point.x = this.point.x + 3;
             this.domElement.setAttribute('x', String(this.point.x));
         }
+    }
+    public shoot():void {
+        this.emitBullet({
+            x: this.point.x,
+            y: this.point.y - 3
+        });
+        this.emitBullet({
+            x: this.point.x + this.size.width,
+            y: this.point.y - 3
+        });
     }
 }

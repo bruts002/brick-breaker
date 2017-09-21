@@ -5,9 +5,11 @@ import ballConfig from './interfaces/BallConfig';
 import BlockConfig from './interfaces/BlockConfig';
 import Size from './interfaces/Size';
 import Paddle from './Paddle';
+import Bullet from './Bullet';
 import CollisionUtil from './CollisionUtil';
 
 export default class GameBoard {
+    private bullets: Array<Bullet>;
     balls: Array<Ball>;
     size:Size;
     domElement: SVGElement;
@@ -16,6 +18,7 @@ export default class GameBoard {
 
     constructor(size:Size, domNode:HTMLElement) {
         this.balls = [];
+        this.bullets = [];
         this.size = size;
 
         this.domElement = document.createElementNS( "http://www.w3.org/2000/svg", 'svg' );
@@ -48,8 +51,12 @@ export default class GameBoard {
             paddleSize,
             (this.size.width - paddleWidth)/2,
             this.size,
-            this.domElement
+            this.domElement,
+            this.createBullet.bind(this)
         );
+    }
+    public createBullet( start:Point ) {
+        this.bullets.push( new Bullet( start, this.domElement ) );
     }
     buildBall( ballConfig:ballConfig ):Ball {
         return new Ball( ballConfig, this.domElement );
@@ -84,8 +91,77 @@ export default class GameBoard {
     }
     update():void {
         this.updateBalls();
+        this.updateBullets();
         // TODO: if blocks can move then need this
         // this.updateBlocks();
+    }
+    private updateBullets():void {
+        var bulletsToDelete:Array<number> = [];
+        var offset:number = 0;
+        this.bullets.forEach(function( bullet:Bullet, index:number ) {
+            var nxtPos:Point = bullet.getNextPosition();
+            var curPos:Point = bullet.getPoint();
+            var hitBlockX:boolean;
+            var hitBlockY:boolean;
+            var block:Block;
+
+            if ( bullet.isDestroyed ) {
+                bulletsToDelete.push( index );
+                return;
+            }
+            // check if it went off screen
+            if (nxtPos.x < 0 || nxtPos.x > this.size.width ||
+                nxtPos.y < 0 || nxtPos.y >= this.size.height
+                ) {
+                bulletsToDelete.push(index);
+                // TODO: make sure it gets deleted, don't want a memory leak
+                bullet.destroy();
+                return;
+            }
+
+            // check if block in front of x path
+            block = this.getBlock({x:nxtPos.x,y:curPos.y});
+            if (block) {
+                hitBlockX = true;
+                // TODO: block.getHit() should take a strength (the bullet.lives)
+                // TODO: rename bullet.lives to bullet.strength
+                bullet.getHit();
+                if (block.getHit() === 0) {
+                    this.destroyBlock( block.index );
+                } else {
+                    block.setIndex(-1);
+                }
+            }
+
+            // check if ball in front of y path
+            block = this.getBlock({x:curPos.x,y:nxtPos.y});
+            if (block) {
+                hitBlockY = true;
+                bullet.getHit();
+                if (block.getHit() === 0) {
+                    this.destroyBlock( block.index );
+                } else {
+                    block.setIndex(-1);
+                }
+            }
+            // check if ball in front of xy path (corner hit)
+            if (!hitBlockX && !hitBlockY) {
+                block = this.getBlock(nxtPos);
+                if (block) {
+                    bullet.getHit();
+                    if (block.getHit() === 0) {
+                        this.destroyBlock( block.index );
+                    } else {
+                        block.setIndex(-1);
+                    }
+                }
+            }
+            bullet.update();
+        }, this);
+        bulletsToDelete.map( (idx:number) => {
+            this.bullets.splice(idx+offset,1);
+            offset -= 1;
+        })
     }
     updateBalls():void {
         var ballsToDelete:Array<number> = [];
@@ -175,6 +251,9 @@ export default class GameBoard {
             case 39:
                 this.onKeyRight();
                 break;
+            case 32:
+                this.onSpaceBar();
+                break;
         }
     }
     onKeyLeft() {
@@ -182,6 +261,9 @@ export default class GameBoard {
     }
     onKeyRight() {
         this.paddle.move('right');
+    }
+    onSpaceBar() {
+        this.paddle.shoot();
     }
 
 }
