@@ -6,4 +6,4 @@ Break all the bricks!
 - [x] [Webpack 3](https://webpack.js.org/)
 - [x] [Typescript 2](https://blogs.msdn.microsoft.com/typescript/2016/07/11/announcing-typescript-2-0-beta/)
 - [x] [Webpack Dashboard](https://github.com/FormidableLabs/webpack-dashboard)
-![Imgur](http://i.imgur.com/pETTX85.png)
+![Image](./images/brick-breaker-overview.png)
