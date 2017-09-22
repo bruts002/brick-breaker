@@ -17,6 +17,7 @@ export default class GameBoard {
     private domElement: SVGElement;
     private renderedBlocks: Array<Block>;
     private paddle: Paddle;
+    private isPaused: Boolean
 
     public constructor( size:Size, domNode:HTMLElement ) {
         this.activeKeys = new Map();
@@ -38,13 +39,22 @@ export default class GameBoard {
         this.balls = this.renderBalls(balls);
         this.paddle = this.buildPaddle(9,3);
 
-        // start it up
+        document.body.addEventListener('keydown', this.globalKeyListener.bind( this ) );
+        this.start();        
+    }
+    private start():void {
+        // TODO give the user a count down before starting
         this.attachKeyListeners();
-        this.updateInterval = setInterval(this.update.bind(this), 50);
+        this.updateInterval = setInterval( this.update.bind( this ), 50 );
+        this.isPaused = false;
+    }
+    private removeKeyListeners():void {
+        document.body.removeEventListener( 'keydown', this.keyUpDownHandler );
+        document.body.removeEventListener( 'keyup', this.keyUpDownHandler );
     }
     private attachKeyListeners():void {
-        document.body.addEventListener('keydown', this.keyUpDownHandler.bind(this));
-        document.body.addEventListener('keyup', this.keyUpDownHandler.bind(this));
+        document.body.addEventListener('keydown', this.keyUpDownHandler.bind( this ) );
+        document.body.addEventListener('keyup', this.keyUpDownHandler.bind( this ) );
     }
     private buildPaddle( paddleWidth:number, paddleHeight:number ):Paddle {
         var paddleSize:Size = {
@@ -95,6 +105,11 @@ export default class GameBoard {
     }
     private endGame( message:string ):void {
         alert( message );
+        this.stop();
+    }
+    private stop():void {
+        // TODO: a gray overlay with a modal
+        this.isPaused = true;
         clearInterval( this.updateInterval );
     }
     private update():void {
@@ -270,6 +285,11 @@ export default class GameBoard {
         var isKeyDown:boolean = e.type === 'keydown';
         this.activeKeys.set( e.keyCode, isKeyDown );
     }
+    private globalKeyListener( e:KeyboardEvent ):void {
+        if ( e.keyCode === 27 ) {
+            this.pauseGame();
+        }
+    }
     private dispatchActions():void {
         this.activeKeys.forEach( ( value:Boolean, key:number ):void => {
             if (value) {
@@ -296,6 +316,13 @@ export default class GameBoard {
     }
     private onSpaceBar():void {
         this.paddle.shoot();
+    }
+    private pauseGame():void {
+        if ( this.isPaused ) {
+            this.start();
+        } else {
+            this.stop();
+        }
     }
 
 }
