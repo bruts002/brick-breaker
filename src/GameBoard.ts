@@ -11,13 +11,14 @@ import CollisionUtil from './CollisionUtil';
 export default class GameBoard {
     private activeKeys: Map<number, Boolean>;
     private bullets: Array<Bullet>;
-    balls: Array<Ball>;
-    size:Size;
-    domElement: SVGElement;
-    renderedBlocks: Array<Block>;
-    paddle: Paddle;
+    private updateInterval:number;
+    private balls: Array<Ball>;
+    private size:Size;
+    private domElement: SVGElement;
+    private renderedBlocks: Array<Block>;
+    private paddle: Paddle;
 
-    constructor(size:Size, domNode:HTMLElement) {
+    public constructor( size:Size, domNode:HTMLElement ) {
         this.activeKeys = new Map();
         this.balls = [];
         this.bullets = [];
@@ -31,21 +32,21 @@ export default class GameBoard {
         this.domElement.setAttribute('style', 'border:1px solid black;');
         domNode.appendChild(this.domElement);
     }
-    init(blocks:Array<BlockConfig>, balls:Array<ballConfig>):void {
+    public init( blocks:Array<BlockConfig>, balls:Array<ballConfig> ):void {
         // build stuff
         this.renderedBlocks = this.renderBlocks(blocks);
         this.balls = this.renderBalls(balls);
         this.paddle = this.buildPaddle(9,3);
 
-        // add listeners for events
+        // start it up
+        this.attachKeyListeners();
+        this.updateInterval = setInterval(this.update.bind(this), 50);
+    }
+    private attachKeyListeners():void {
         document.body.addEventListener('keydown', this.keyUpDownHandler.bind(this));
         document.body.addEventListener('keyup', this.keyUpDownHandler.bind(this));
-
-
-        // start it up
-        setInterval(this.update.bind(this), 50);
     }
-    buildPaddle(paddleWidth:number, paddleHeight:number) {
+    private buildPaddle( paddleWidth:number, paddleHeight:number ):Paddle {
         var paddleSize:Size = {
             width: paddleWidth,
             height: paddleHeight
@@ -58,37 +59,37 @@ export default class GameBoard {
             this.createBullet.bind(this)
         );
     }
-    public createBullet( start:Point ) {
+    public createBullet( start:Point ):void {
         this.bullets.push( new Bullet( start, this.domElement ) );
     }
-    buildBall( ballConfig:ballConfig ):Ball {
+    private buildBall( ballConfig:ballConfig ):Ball {
         return new Ball( ballConfig, this.domElement );
     }
-    renderBalls( balls:Array<ballConfig> ):Array<Ball> {
+    private renderBalls( balls:Array<ballConfig> ):Array<Ball> {
         var builtBalls = balls.map(this.buildBall, this);
         return builtBalls;
     }
-    renderBlocks(blocks:Array<BlockConfig>):Array<Block> {
+    private renderBlocks( blocks:Array<BlockConfig> ):Array<Block> {
         return blocks.map(this.renderBlock, this);
     }
-    renderBlock(block:BlockConfig):Block {
+    private renderBlock( block:BlockConfig ):Block {
         return new Block(block, this.domElement);
     }
-    destroyBlock( index:number ):void {
+    private destroyBlock( index:number ):void {
         this.renderedBlocks.splice( index, 1 );
     }
-    getBlock( point:Point ):Block {
+    private getBlock( point:Point ):Block {
         var block:Block;
-        this.renderedBlocks.some((b:Block, i:number) => {
-            var blockPoint = b.getPoint(),
-                blockSize = b.getSize();
+        this.renderedBlocks.some( ( b:Block, i:number ) => {
+            var blockPoint:Point = b.getPoint();
+            var blockSize:Size = b.getSize();
             
             if ( CollisionUtil.isNear( point, blockPoint, blockSize ) &&
                  CollisionUtil.isCollision( point, blockPoint, blockSize ) ) {
                 block = b;
                 block.setIndex( i );
             }
-            return Boolean(block);
+            return Boolean( block );
         });
         return block;
     }
@@ -144,8 +145,8 @@ export default class GameBoard {
                 }
 
                 // check if ball in front of y path
-                block = this.getBlock({x:curPos.x,y:nxtPos.y});
-                if (block) {
+                block = this.getBlock( { x:curPos.x, y:nxtPos.y } );
+                if ( block ) {
                     hitBlockY = true;
                     bullet.getHit();
                     if (block.getHit() === 0) {
@@ -155,26 +156,26 @@ export default class GameBoard {
                     }
                 }
                 // check if ball in front of xy path (corner hit)
-                if (!hitBlockX && !hitBlockY) {
-                    block = this.getBlock(nxtPos);
+                if ( !hitBlockX && !hitBlockY ) {
+                    block = this.getBlock( nxtPos );
                     if (block) {
                         bullet.getHit();
                         if (block.getHit() === 0) {
                             this.destroyBlock( block.index );
                         } else {
-                            block.setIndex(-1);
+                            block.setIndex( -1 );
                         }
                     }
                 }
                 bullet.update();
             }
         }, this);
-        bulletsToDelete.map( (idx:number) => {
-            this.bullets.splice(idx+offset,1);
+        bulletsToDelete.forEach( ( idx:number ) => {
+            this.bullets.splice( idx+offset, 1 );
             offset -= 1;
         })
     }
-    updateBalls():void {
+    private updateBalls():void {
         var ballsToDelete:Array<number> = [];
         var offset:number = 0;
         const paddlePos:Point = this.paddle.getPoint();
@@ -186,71 +187,71 @@ export default class GameBoard {
         //  destroy ball if needed
         //  invert trajectory
         // send new pos
-        this.balls.forEach(function(ball:Ball, index:number) {
+        this.balls.forEach( function( ball:Ball, index:number ) {
             var nxtPos:Point = ball.getNextPosition();
             var hitBlockX:boolean;
             var hitBlockY:boolean;
             var block:Block;
 
             // check if it side wall
-            if (nxtPos.x < 0 || nxtPos.x > this.size.width) {
-                ball.invert('x');
+            if ( nxtPos.x < 0 || nxtPos.x > this.size.width ) {
+                ball.invert( 'x' );
             }
             // check if hit top wall or paddle
-            if (nxtPos.y < 0 || CollisionUtil.isCollision(nxtPos, paddlePos, paddleSize)) {
-                ball.invert('y');
+            if ( nxtPos.y < 0 || CollisionUtil.isCollision( nxtPos, paddlePos, paddleSize ) ) {
+                ball.invert( 'y' );
             }
             // check if fell off screen
-            if (nxtPos.y >= this.size.height) {
-                ballsToDelete.push(index);
+            if ( nxtPos.y >= this.size.height ) {
+                ballsToDelete.push( index );
                 // TODO: make sure it gets deleted, don't want a memory leak
-                ball.destroy(this.domElement);
+                ball.destroy( this.domElement );
                 return;
             }
 
             // check if ball in front of x path
             nxtPos = ball.getNextPosition();
-            block = this.getBlock({x:nxtPos.x,y:ball.point.y});
-            if (block) {
+            block = this.getBlock( { x:nxtPos.x, y:ball.point.y } );
+            if ( block ) {
                 hitBlockX = true;
-                ball.invert('x');
+                ball.invert( 'x' );
                 if (block.getHit() === 0) {
                     this.destroyBlock( block.index );
                 } else {
-                    block.setIndex(-1);
+                    block.setIndex( -1 );
                 }
             }
 
             // check if ball in front of y path
             nxtPos = ball.getNextPosition();
-            block = this.getBlock({x:ball.point.x,y:nxtPos.y});
-            if (block) {
+            block = this.getBlock( { x:ball.point.x, y:nxtPos.y } );
+            if ( block ) {
                 hitBlockY = true;
-                ball.invert('y');
+                ball.invert( 'y' );
                 if (block.getHit() === 0) {
                     this.destroyBlock( block.index );
                 } else {
-                    block.setIndex(-1);
+                    block.setIndex( -1 );
                 }
             }
             // check if ball in front of xy path (corner hit)
-            if (!hitBlockX && !hitBlockY) {
-                block = this.getBlock(nxtPos);
-                if (block) {
-                    ball.invert('y');
-                    ball.invert('x');
+            if ( !hitBlockX && !hitBlockY ) {
+                block = this.getBlock( nxtPos );
+                if ( block ) {
+                    ball.invert( 'y' );
+                    ball.invert( 'x' );
                     if (block.getHit() === 0) {
                         this.destroyBlock( block.index );
                     } else {
-                        block.setIndex(-1);
+                        block.setIndex( -1 );
                     }
                 }
             }
             nxtPos = ball.getNextPosition();
-            ball.update(nxtPos);
+            ball.update( nxtPos );
         }, this);
-        ballsToDelete.map( (idx:number) => {
-            this.balls.splice(idx+offset,1);
+        ballsToDelete.forEach( ( idx:number ) => {
+            this.balls.splice( idx+offset, 1 );
             offset -= 1;
         })
     }
