@@ -7,6 +7,7 @@ import Size from './interfaces/Size';
 import Paddle from './Paddle';
 import Bullet from './Bullet';
 import CollisionUtil from './CollisionUtil';
+import Modal from './Modal';
 
 export default class GameBoard {
     private activeKeys: Map<number, Boolean>;
@@ -18,9 +19,11 @@ export default class GameBoard {
     private renderedBlocks: Array<Block>;
     private paddle: Paddle;
     private isPaused: Boolean
+    private modal: Modal;
 
     public constructor( size:Size, domNode:HTMLElement ) {
         this.activeKeys = new Map();
+        this.modal = new Modal();
         this.balls = [];
         this.bullets = [];
         this.size = size;
@@ -44,6 +47,7 @@ export default class GameBoard {
     }
     private start():void {
         // TODO give the user a count down before starting
+        this.modal.hide();
         this.attachKeyListeners();
         this.updateInterval = setInterval( this.update.bind( this ), 50 );
         this.isPaused = false;
@@ -109,6 +113,7 @@ export default class GameBoard {
     }
     private stop():void {
         // TODO: a gray overlay with a modal
+        this.modal.show( 'Game Paused', this.start.bind( this ) );
         this.isPaused = true;
         clearInterval( this.updateInterval );
     }
