@@ -93,7 +93,18 @@ export default class GameBoard {
         });
         return block;
     }
+    private endGame( message:string ):void {
+        alert( message );
+        clearInterval( this.updateInterval );
+    }
     private update():void {
+        if ( this.renderedBlocks.length === 0 ) {
+            this.endGame( 'you win' );
+            return;
+        } else if ( this.balls.length === 0 ){
+            this.endGame( 'you lose' );
+            return;
+        }
         this.updateBalls();
         this.updateBullets();
         this.dispatchActions();
