@@ -103,55 +103,38 @@ export default class GameBoard {
         var bulletsToDelete:Array<number> = [];
         var offset:number = 0;
         this.bullets.forEach(function( bullet:Bullet, index:number ) {
-            var nxtPos:Point = bullet.getNextPosition();
-            var curPos:Point = bullet.getPoint();
+            const speed:number = bullet.getSpeed( true );
+            var nxtPos:Point;
+            var curPos:Point;
             var hitBlockX:boolean;
             var hitBlockY:boolean;
             var block:Block;
 
-            if ( bullet.isDestroyed ) {
-                bulletsToDelete.push( index );
-                return;
-            }
-            // check if it went off screen
-            if (nxtPos.x < 0 || nxtPos.x > this.size.width ||
-                nxtPos.y < 0 || nxtPos.y >= this.size.height
-                ) {
-                bulletsToDelete.push(index);
-                // TODO: make sure it gets deleted, don't want a memory leak
-                bullet.destroy();
-                return;
-            }
-
-            // check if block in front of x path
-            block = this.getBlock({x:nxtPos.x,y:curPos.y});
-            if (block) {
-                hitBlockX = true;
-                // TODO: block.getHit() should take a strength (the bullet.lives)
-                // TODO: rename bullet.lives to bullet.strength
-                bullet.getHit();
-                if (block.getHit() === 0) {
-                    this.destroyBlock( block.index );
-                } else {
-                    block.setIndex(-1);
+            for ( let indexSpeed = 0; indexSpeed < speed; indexSpeed++ ) {
+                block = null;
+                nxtPos = bullet.getNextPosition();
+                curPos = bullet.getPoint();
+                hitBlockX = hitBlockY = false;
+                if ( bullet.isDestroyed ) {
+                    bulletsToDelete.push( index );
+                    return;
                 }
-            }
-
-            // check if ball in front of y path
-            block = this.getBlock({x:curPos.x,y:nxtPos.y});
-            if (block) {
-                hitBlockY = true;
-                bullet.getHit();
-                if (block.getHit() === 0) {
-                    this.destroyBlock( block.index );
-                } else {
-                    block.setIndex(-1);
+                // check if it went off screen
+                if (nxtPos.x < 0 || nxtPos.x > this.size.width ||
+                    nxtPos.y < 0 || nxtPos.y >= this.size.height
+                    ) {
+                    bulletsToDelete.push(index);
+                    // TODO: make sure it gets deleted, don't want a memory leak
+                    bullet.destroy();
+                    return;
                 }
-            }
-            // check if ball in front of xy path (corner hit)
-            if (!hitBlockX && !hitBlockY) {
-                block = this.getBlock(nxtPos);
+
+                // check if block in front of x path
+                block = this.getBlock({x:nxtPos.x,y:curPos.y});
                 if (block) {
+                    hitBlockX = true;
+                    // TODO: block.getHit() should take a strength (the bullet.lives)
+                    // TODO: rename bullet.lives to bullet.strength
                     bullet.getHit();
                     if (block.getHit() === 0) {
                         this.destroyBlock( block.index );
@@ -159,8 +142,32 @@ export default class GameBoard {
                         block.setIndex(-1);
                     }
                 }
+
+                // check if ball in front of y path
+                block = this.getBlock({x:curPos.x,y:nxtPos.y});
+                if (block) {
+                    hitBlockY = true;
+                    bullet.getHit();
+                    if (block.getHit() === 0) {
+                        this.destroyBlock( block.index );
+                    } else {
+                        block.setIndex(-1);
+                    }
+                }
+                // check if ball in front of xy path (corner hit)
+                if (!hitBlockX && !hitBlockY) {
+                    block = this.getBlock(nxtPos);
+                    if (block) {
+                        bullet.getHit();
+                        if (block.getHit() === 0) {
+                            this.destroyBlock( block.index );
+                        } else {
+                            block.setIndex(-1);
+                        }
+                    }
+                }
+                bullet.update();
             }
-            bullet.update();
         }, this);
         bulletsToDelete.map( (idx:number) => {
             this.bullets.splice(idx+offset,1);

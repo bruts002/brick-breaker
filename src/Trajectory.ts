@@ -14,4 +14,8 @@ export default class Trajectory {
         this.x = this.x > 0 ? this.x + val : this.x - val;
         this.y = this.y > 0 ? this.y + val : this.y - val;
     }
+    public getSpeed( abs:Boolean ):number {
+        var hyp:number = Math.hypot( this.x, this.y );
+        return abs ? Math.abs( hyp ) : hyp;
+    }
 }

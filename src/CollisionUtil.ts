@@ -16,16 +16,21 @@ function isNear( circlePoint:Point, blockPoint:Point, blockSize:Size ):Boolean {
     // TODO: This will have to change when the ball can be different radius
     const ballRadius:number = 3; 
     const blockDist = Math.max( blockSize.width, blockSize.height );
-    const distX = circlePoint.x - blockPoint.x;
-    const distY = circlePoint.y - blockPoint.y;
-    const distance:number = Math.sqrt(
+    const distance:number = getDistance( circlePoint, blockPoint );
+    return distance <= blockDist + ballRadius;
+}
+
+function getDistance( p1:Point, p2:Point ):number {
+    const distX = p1.x - p2.x;
+    const distY = p1.y - p2.y;
+    return Math.sqrt(
         (distX) * (distX) +
         (distY) * (distY)
     );
-    return distance <= blockDist + ballRadius;
 }
 
 export default {
     isCollision,
-    isNear
+    isNear,
+    getDistance
 }

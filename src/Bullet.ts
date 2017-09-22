@@ -16,7 +16,7 @@ export default class Bullet extends AbstractElement {
         var size:Size = { width:1, height:3 };
         super( point, size );
         // TODO extend functionality for size, traj, etc
-        this.traj = new Trajectory( { x:0, y:-1 } );
+        this.traj = new Trajectory( { x:0, y:-9 } );
         this.lives = 2;
         this.mountNode = mountNode;
 
@@ -35,10 +35,10 @@ export default class Bullet extends AbstractElement {
         this.isDestroyed = false;
         this.mountNode.appendChild(this.domElement);
     }
-    public getNextPosition() {
+    public getNextPosition():Point {
         return {
-            x: this.point.x + this.traj.x,
-            y: this.point.y + this.traj.y
+            x: this.point.x + Math.sign(this.traj.x),
+            y: this.point.y + Math.sign(this.traj.y)
         };
     }
     public getHit():number {
@@ -47,6 +47,9 @@ export default class Bullet extends AbstractElement {
             this.destroy();
         }
         return this.lives;
+    }
+    public getSpeed( abs:Boolean ):number {
+        return this.traj.getSpeed( abs )
     }
     public update():void {
         this.point = this.getNextPosition();
