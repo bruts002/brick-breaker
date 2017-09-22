@@ -9,6 +9,7 @@ import Bullet from './Bullet';
 import CollisionUtil from './CollisionUtil';
 
 export default class GameBoard {
+    private activeKeys: Map<number, Boolean>;
     private bullets: Array<Bullet>;
     balls: Array<Ball>;
     size:Size;
@@ -17,6 +18,7 @@ export default class GameBoard {
     paddle: Paddle;
 
     constructor(size:Size, domNode:HTMLElement) {
+        this.activeKeys = new Map();
         this.balls = [];
         this.bullets = [];
         this.size = size;
@@ -36,7 +38,8 @@ export default class GameBoard {
         this.paddle = this.buildPaddle(9,3);
 
         // add listeners for events
-        document.body.addEventListener('keydown', this.keyDownHandler.bind(this));
+        document.body.addEventListener('keydown', this.keyUpDownHandler.bind(this));
+        document.body.addEventListener('keyup', this.keyUpDownHandler.bind(this));
 
 
         // start it up
@@ -89,9 +92,10 @@ export default class GameBoard {
         });
         return block;
     }
-    update():void {
+    private update():void {
         this.updateBalls();
         this.updateBullets();
+        this.dispatchActions();
         // TODO: if blocks can move then need this
         // this.updateBlocks();
     }
@@ -243,26 +247,35 @@ export default class GameBoard {
             offset -= 1;
         })
     }
-    keyDownHandler(e:KeyboardEvent):void {
-        switch (e.keyCode) {
-            case 37:
-                this.onKeyLeft();
-                break;
-            case 39:
-                this.onKeyRight();
-                break;
-            case 32:
-                this.onSpaceBar();
-                break;
-        }
+    private keyUpDownHandler( e:KeyboardEvent ):void {
+        var isKeyDown:boolean = e.type === 'keydown';
+        this.activeKeys.set( e.keyCode, isKeyDown );
     }
-    onKeyLeft() {
-        this.paddle.move('left');
+    private dispatchActions():void {
+        this.activeKeys.forEach( ( value:Boolean, key:number ):void => {
+            if (value) {
+                switch (key) {
+                    case 37:
+                        this.onKeyLeft();
+                        break;
+                    case 39:
+                        this.onKeyRight();
+                        break;
+                    case 32:
+                        this.onSpaceBar();
+                        break;
+                    default: break;
+                }
+            }
+        });
     }
-    onKeyRight() {
-        this.paddle.move('right');
+    private onKeyLeft():void {
+        this.paddle.moveLeft();
     }
-    onSpaceBar() {
+    private onKeyRight():void {
+        this.paddle.moveRight();
+    }
+    private onSpaceBar():void {
         this.paddle.shoot();
     }
 
