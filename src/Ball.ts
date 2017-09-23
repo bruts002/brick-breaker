@@ -1,3 +1,4 @@
+import { SVGNAMESPACE } from './Constants';
 import Point from './Point';
 import Trajectory from './Trajectory';
 import ballConfig from './interfaces/BallConfig';
@@ -13,7 +14,10 @@ export default class Ball {
         this.traj = new Trajectory(ballConfig.trajectory);
         this.point = ballConfig.point;
         this.r = ballConfig.radius;
-        this.domElement = document.createElementNS( "http://www.w3.org/2000/svg", 'circle' );
+        this.domElement = document.createElementNS(
+            SVGNAMESPACE,
+            'circle'
+        );
         this.domElement.setAttribute('cx', String(this.point.x));
         this.domElement.setAttribute('cy', String(this.point.y));
         this.domElement.setAttribute('r', String(this.r));

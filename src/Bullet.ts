@@ -1,3 +1,4 @@
+import { SVGNAMESPACE } from './Constants';
 import AbstractElement from './AbstractElement';
 import Size from './interfaces/Size';
 import Trajectory from './Trajectory';
@@ -17,11 +18,11 @@ export default class Bullet extends AbstractElement {
         super( point, size );
         // TODO extend functionality for size, traj, etc
         this.traj = new Trajectory( { x:0, y:-9 } );
-        this.lives = 2;
+        this.lives = 1;
         this.mountNode = mountNode;
 
         this.domElement = document.createElementNS(
-            "http://www.w3.org/2000/svg",
+            SVGNAMESPACE,
             'rect'
         );
         this.domElement.setAttribute('x', String(this.point.x));

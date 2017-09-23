@@ -1,3 +1,4 @@
+import { SVGNAMESPACE } from './Constants';
 import Point from './Point';
 import Ball from './Ball';
 import Block from './Block';
@@ -28,7 +29,10 @@ export default class GameBoard {
         this.bullets = [];
         this.size = size;
 
-        this.domElement = document.createElementNS( "http://www.w3.org/2000/svg", 'svg' );
+        this.domElement = document.createElementNS(
+            SVGNAMESPACE,
+            'svg'
+        );
         this.domElement.setAttribute('width',' 100%');
         this.domElement.setAttribute('height', '100%');
         this.domElement.setAttribute('viewBox', '0 0 ' + this.size.width + ' ' + this.size.height );

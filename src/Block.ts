@@ -1,3 +1,4 @@
+import { SVGNAMESPACE } from './Constants';
 import Point from './Point';
 import Size from './interfaces/Size';
 import BlockConfig from './interfaces/BlockConfig';
@@ -23,9 +24,8 @@ export default class Ball extends AbstractElement {
         } else {
             this.lives = 1;
         }
-        // TODO: get this svg namespace string as a constant, for cross app consistency
         this.domElement = document.createElementNS(
-            "http://www.w3.org/2000/svg",
+            SVGNAMESPACE,
             'rect'
         );
         this.domElement.setAttribute('x', String(this.point.x));

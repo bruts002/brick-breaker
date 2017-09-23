@@ -1,3 +1,4 @@
+import { SVGNAMESPACE } from './Constants';
 import Size from './interfaces/Size';
 import AbstractElement from './AbstractElement';
 
@@ -17,7 +18,7 @@ export default class Paddle extends AbstractElement {
         this.emitBullet = emitBullet;
         this.boardSize = boardSize;
         this.domElement = document.createElementNS(
-            "http://www.w3.org/2000/svg",
+            SVGNAMESPACE,
             'rect'
         );
         this.domElement.setAttribute('width', String(this.size.width));
