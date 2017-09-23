@@ -6,7 +6,7 @@ import Point from './Point';
 
 export default class Bullet extends AbstractElement {
 
-    private lives:number;
+    private strength:number;
     private traj:Trajectory;
     private mountNode:SVGElement;
     private domElement:SVGRectElement;
@@ -18,7 +18,7 @@ export default class Bullet extends AbstractElement {
         super( point, size );
         // TODO extend functionality for size, traj, etc
         this.traj = new Trajectory( { x:0, y:-9 } );
-        this.lives = 1;
+        this.strength = 1;
         this.mountNode = mountNode;
 
         this.domElement = document.createElementNS(
@@ -42,12 +42,15 @@ export default class Bullet extends AbstractElement {
             y: this.point.y + Math.sign(this.traj.y)
         };
     }
-    public getHit():number {
-        this.lives--;
-        if (this.lives <= 0) {
+    public getStrength():number {
+        return this.strength;
+    }
+    public getHit( strength:number ):number {
+        this.strength -= strength;
+        if (this.strength <= 0) {
             this.destroy();
         }
-        return this.lives;
+        return this.strength;
     }
     public getSpeed( abs:Boolean ):number {
         return this.traj.getSpeed( abs )

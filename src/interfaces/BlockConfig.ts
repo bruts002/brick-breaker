@@ -4,5 +4,5 @@ import Point from '../Point';
 export default interface BlockConfig {
     point: Point,
     size: Size,
-    lives?: number
+    strength?: number
 }

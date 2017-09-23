@@ -116,7 +116,6 @@ export default class GameBoard {
         this.stop();
     }
     private stop():void {
-        // TODO: a gray overlay with a modal
         this.modal.show( 'Game Paused', this.start.bind( this ) );
         this.isPaused = true;
         clearInterval( this.updateInterval );
@@ -132,14 +131,14 @@ export default class GameBoard {
         this.updateBalls();
         this.updateBullets();
         this.dispatchActions();
-        // TODO: if blocks can move then need this
-        // this.updateBlocks();
     }
     private updateBullets():void {
         var bulletsToDelete:Array<number> = [];
         var offset:number = 0;
         this.bullets.forEach(function( bullet:Bullet, index:number ) {
             const speed:number = bullet.getSpeed( true );
+            var blockStrength:number;
+            var bulletStrength:number;
             var nxtPos:Point;
             var curPos:Point;
             var hitBlockX:boolean;
@@ -169,10 +168,9 @@ export default class GameBoard {
                 block = this.getBlock({x:nxtPos.x,y:curPos.y});
                 if (block) {
                     hitBlockX = true;
-                    // TODO: block.getHit() should take a strength (the bullet.lives)
-                    // TODO: rename bullet.lives to bullet.strength
-                    bullet.getHit();
-                    if (block.getHit() === 0) {
+                    blockStrength = block.getStrength();
+                    bulletStrength = bullet.getStrength();
+                    if (block.getHit( bulletStrength ) <= 0) {
                         this.destroyBlock( block.index );
                     } else {
                         block.setIndex(-1);
@@ -183,8 +181,10 @@ export default class GameBoard {
                 block = this.getBlock( { x:curPos.x, y:nxtPos.y } );
                 if ( block ) {
                     hitBlockY = true;
-                    bullet.getHit();
-                    if (block.getHit() === 0) {
+                    blockStrength = block.getStrength();
+                    bulletStrength = bullet.getStrength();
+                    bullet.getHit( blockStrength );
+                    if (block.getHit( bulletStrength ) === 0) {
                         this.destroyBlock( block.index );
                     } else {
                         block.setIndex(-1);
@@ -194,8 +194,10 @@ export default class GameBoard {
                 if ( !hitBlockX && !hitBlockY ) {
                     block = this.getBlock( nxtPos );
                     if (block) {
-                        bullet.getHit();
-                        if (block.getHit() === 0) {
+                        blockStrength = block.getStrength();
+                        bulletStrength = bullet.getStrength();
+                        bullet.getHit( blockStrength );
+                        if (block.getHit( bulletStrength ) === 0) {
                             this.destroyBlock( block.index );
                         } else {
                             block.setIndex( -1 );
@@ -250,7 +252,8 @@ export default class GameBoard {
             if ( block ) {
                 hitBlockX = true;
                 ball.invert( 'x' );
-                if (block.getHit() === 0) {
+                // TODO: different strength for balls
+                if (block.getHit( 1 ) === 0) {
                     this.destroyBlock( block.index );
                 } else {
                     block.setIndex( -1 );
@@ -263,7 +266,7 @@ export default class GameBoard {
             if ( block ) {
                 hitBlockY = true;
                 ball.invert( 'y' );
-                if (block.getHit() === 0) {
+                if (block.getHit( 1 ) === 0) {
                     this.destroyBlock( block.index );
                 } else {
                     block.setIndex( -1 );
@@ -275,7 +278,7 @@ export default class GameBoard {
                 if ( block ) {
                     ball.invert( 'y' );
                     ball.invert( 'x' );
-                    if (block.getHit() === 0) {
+                    if (block.getHit( 1 ) === 0) {
                         this.destroyBlock( block.index );
                     } else {
                         block.setIndex( -1 );

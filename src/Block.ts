@@ -4,25 +4,23 @@ import Size from './interfaces/Size';
 import BlockConfig from './interfaces/BlockConfig';
 import AbstractElement from './AbstractElement';
 
-        // TODO: make blocks its own class - then can create more complex blocks
-        //          -- blocks that need multiple hits to destroy
-        //          -- blocks that drop rewards
-        //          -- animations on hit
+// TODO: 
+// -- blocks that drop rewards
+// -- animations on hit
 
 export default class Ball extends AbstractElement {
     public index: number = -1;
 
     private domElement: SVGRectElement;
     private mountNode: SVGElement;
-    private lives: number;
+    private strength: number;
 
     public constructor( config:BlockConfig, mountNode:SVGElement ) {
-        // TODO: make that cleaner
         super( config.point, config.size );
-        if ( config.lives ) {
-            this.lives = config.lives;
+        if ( config.strength ) {
+            this.strength = config.strength;
         } else {
-            this.lives = 1;
+            this.strength = 1;
         }
         this.domElement = document.createElementNS(
             SVGNAMESPACE,
@@ -40,17 +38,19 @@ export default class Ball extends AbstractElement {
         this.mountNode.appendChild(this.domElement);
     }
     public destroy() {
-        // TODO: add some cool animations on destroy
         this.mountNode.removeChild(this.domElement);
     }
     public setIndex( index:number ) {
         this.index = index;
     }
-    public getHit():number{
-        this.lives--;
-        if (this.lives <= 0) {
+    public getStrength():number {
+        return this.strength;
+    }
+    public getHit( strength:number ):number{
+        this.strength -= strength;
+        if (this.strength <= 0) {
             this.destroy();
         }
-        return this.lives;
+        return this.strength;
     }
 }
