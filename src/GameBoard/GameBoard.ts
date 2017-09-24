@@ -4,11 +4,11 @@ import Ball from './Ball';
 import Block from './Block';
 import ballConfig from './interfaces/BallConfig';
 import BlockConfig from './interfaces/BlockConfig';
-import Size from './interfaces/Size';
+import Size from '../interfaces/Size';
 import Paddle from './Paddle';
 import Bullet from './Bullet';
 import CollisionUtil from './CollisionUtil';
-import Modal from './Modal';
+import Modal from '../Modal';
 
 export default class GameBoard {
     private activeKeys: Map<number, Boolean>;

@@ -1,6 +1,6 @@
 import { SVGNAMESPACE } from './Constants';
 import Point from './Point';
-import Size from './interfaces/Size';
+import Size from '../interfaces/Size';
 import BlockConfig from './interfaces/BlockConfig';
 import AbstractElement from './AbstractElement';
 

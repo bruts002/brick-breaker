@@ -1,5 +1,5 @@
 import { SVGNAMESPACE } from './Constants';
-import Size from './interfaces/Size';
+import Size from '../interfaces/Size';
 import AbstractElement from './AbstractElement';
 
 export default class Paddle extends AbstractElement {
