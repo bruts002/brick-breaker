@@ -4,7 +4,7 @@ import Size from '../interfaces/Size';
 import BlockConfig from './interfaces/BlockConfig';
 import AbstractElement from './AbstractElement';
 
-// TODO: 
+// TODO:
 // -- blocks that drop rewards
 // -- animations on hit
 
@@ -15,7 +15,7 @@ export default class Ball extends AbstractElement {
     private mountNode: SVGElement;
     private strength: number;
 
-    public constructor( config:BlockConfig, mountNode:SVGElement ) {
+    public constructor( config: BlockConfig, mountNode: SVGElement ) {
         super( config.point, config.size );
         if ( config.strength ) {
             this.strength = config.strength;
@@ -26,29 +26,29 @@ export default class Ball extends AbstractElement {
             SVGNAMESPACE,
             'rect'
         );
-        this.domElement.setAttribute('x', String(this.point.x));
-        this.domElement.setAttribute('y', String(this.point.y));
-        this.domElement.setAttribute('width', String(this.size.width));
-        this.domElement.setAttribute('height', String(this.size.height));
-        this.domElement.setAttribute('fill', 'gray');
-        this.domElement.setAttribute('stroke', 'black');
-        this.domElement.setAttribute('stroke-width', '0.5');
+        this.domElement.setAttribute( 'x', String( this.point.x ) );
+        this.domElement.setAttribute( 'y', String( this.point.y ) );
+        this.domElement.setAttribute( 'width', String( this.size.width ) );
+        this.domElement.setAttribute( 'height', String( this.size.height ) );
+        this.domElement.setAttribute( 'fill', 'gray' );
+        this.domElement.setAttribute( 'stroke', 'black' );
+        this.domElement.setAttribute( 'stroke-width', '0.5' );
 
         this.mountNode = mountNode
-        this.mountNode.appendChild(this.domElement);
+        this.mountNode.appendChild( this.domElement );
     }
     public destroy() {
-        this.mountNode.removeChild(this.domElement);
+        this.mountNode.removeChild( this.domElement );
     }
-    public setIndex( index:number ) {
+    public setIndex( index: number ) {
         this.index = index;
     }
-    public getStrength():number {
+    public getStrength(): number {
         return this.strength;
     }
-    public getHit( strength:number ):number{
+    public getHit( strength: number ): number {
         this.strength -= strength;
-        if (this.strength <= 0) {
+        if ( this.strength <= 0 ) {
             this.destroy();
         }
         return this.strength;

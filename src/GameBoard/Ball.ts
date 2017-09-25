@@ -10,31 +10,31 @@ export default class Ball {
     private domElement: SVGCircleElement;
     private mountPoint: SVGElement;
 
-    constructor( ballConfig:ballConfig, mountPoint?:SVGElement ) {
-        this.traj = new Trajectory(ballConfig.trajectory);
+    constructor( ballConfig: ballConfig, mountPoint?: SVGElement ) {
+        this.traj = new Trajectory( ballConfig.trajectory );
         this.point = ballConfig.point;
         this.r = ballConfig.radius;
         this.domElement = document.createElementNS(
             SVGNAMESPACE,
             'circle'
         );
-        this.domElement.setAttribute('cx', String(this.point.x));
-        this.domElement.setAttribute('cy', String(this.point.y));
-        this.domElement.setAttribute('r', String(this.r));
+        this.domElement.setAttribute( 'cx', String( this.point.x ) );
+        this.domElement.setAttribute( 'cy', String( this.point.y ) );
+        this.domElement.setAttribute( 'r', String( this.r ) );
         if ( mountPoint ) {
-            mountPoint.appendChild(this.domElement );
+            mountPoint.appendChild( this.domElement );
         }
     }
-    public invert( axis:any ) {
-        this.traj.invert(axis);
+    public invert( axis: any ) {
+        this.traj.invert( axis );
     }
-    public update( point:Point ) {
+    public update( point: Point ) {
         this.point = point;
         this.updateDOM();
     }
     public updateDOM() {
-        this.domElement.setAttribute('cx', String(this.point.x));
-        this.domElement.setAttribute('cy', String(this.point.y));
+        this.domElement.setAttribute( 'cx', String( this.point.x ) );
+        this.domElement.setAttribute( 'cy', String( this.point.y ) );
     }
     public getNextPosition() {
         return {
@@ -42,8 +42,8 @@ export default class Ball {
             y: this.point.y + this.traj.y
         };
     }
-    public destroy( element:SVGElement ) {
+    public destroy( element: SVGElement ) {
         // TODO: add some cool animations on destroy
-        element.removeChild(this.domElement);
+        element.removeChild( this.domElement );
     }
 }

@@ -1,14 +1,14 @@
 
 export default class Modal {
-    private mdl:HTMLDivElement;
-    private p:HTMLParagraphElement;
-    private cb:Function;
+    private mdl: HTMLDivElement;
+    private p: HTMLParagraphElement;
+    private cb: Function;
 
     public constructor() {
-        var mdl:HTMLDivElement = document.createElement('div');
-        var content:HTMLDivElement = document.createElement( 'div' );
-        var clsBtn:HTMLSpanElement = document.createElement( 'span' );
-        var p:HTMLParagraphElement = document.createElement( 'p' );
+        let mdl: HTMLDivElement = document.createElement('div');
+        let content: HTMLDivElement = document.createElement( 'div' );
+        let clsBtn: HTMLSpanElement = document.createElement( 'span' );
+        let p: HTMLParagraphElement = document.createElement( 'p' );
         mdl.setAttribute( 'class', 'modal' );
         content.setAttribute( 'class', 'modal-content' );
         clsBtn.setAttribute( 'class', 'closeBtn' );
@@ -24,12 +24,12 @@ export default class Modal {
         this.mdl = mdl;
         this.p = p;
     }
-    public show( message:string, cb:Function ):void {
+    public show( message: string, cb: Function ): void {
         this.cb = cb;
         this.p.innerHTML = message;
         this.mdl.style.display = 'block';
     }
-    private closeButton():void {
+    private closeButton(): void {
         if ( this.cb ) {
             this.cb();
             this.cb = null;
@@ -37,7 +37,7 @@ export default class Modal {
             this.hide();
         }
     }
-    public hide():void {
+    public hide(): void {
         this.p.innerHTML = '';
         this.mdl.style.display = 'none';
     }
