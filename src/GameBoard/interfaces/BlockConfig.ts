@@ -1,4 +1,4 @@
-import Size from './Size';
+import Size from '../../interfaces/Size';
 import Point from '../Point';
 
 export default interface BlockConfig {

@@ -13,7 +13,7 @@ export default class Modal {
         content.setAttribute( 'class', 'modal-content' );
         clsBtn.setAttribute( 'class', 'closeBtn' );
         clsBtn.addEventListener( 'click', this.closeButton.bind( this ) );
-        clsBtn.innerHTML = '&times;'
+        clsBtn.innerHTML = '&times;';
         p.innerHTML = 'Game Paused';
         content.appendChild( clsBtn );
         content.appendChild( p );
