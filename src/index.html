@@ -11,8 +11,11 @@
   </title>
 
   <meta name="description" content="<%= htmlWebpackPlugin.options.title %>">
-  <link rel="stylesheet" href="./css/modal.css">
   <style>
+    @font-face {
+        font-family: "ARCADECLASSIC";
+        src: url(./fonts/ARCADECLASSIC.TTF) format("truetype");
+    }
     .button {
       background: coral;
       padding: 1em 2em;
@@ -36,6 +39,8 @@
   }
   
   .modal-content {
+      font-family: ARCADECLASSIC;
+      font-size: 30px;
       background-color: #f4f4f4;
       margin: 20% auto;
       padding: 20px;

@@ -1,10 +1,11 @@
 import { SVGNAMESPACE } from './Constants';
-import Point from './Point';
+import Vector from '../interfaces/Vector';
 import Ball from './Ball';
 import Block from './Block';
-import ballConfig from './interfaces/BallConfig';
-import BlockConfig from './interfaces/BlockConfig';
+import ballConfig from '../interfaces/BallConfig';
+import BlockConfig from '../interfaces/BlockConfig';
 import Size from '../interfaces/Size';
+import LevelI from '../interfaces/LevelI';
 import Paddle from './Paddle';
 import Bullet from './Bullet';
 import CollisionUtil from './CollisionUtil';
@@ -19,7 +20,7 @@ export default class GameBoard {
     private domElement: SVGElement;
     private renderedBlocks: Array<Block>;
     private paddle: Paddle;
-    private isPaused: Boolean
+    private isPaused: Boolean;
     private modal: Modal;
 
     public constructor( size: Size, domNode: HTMLElement ) {
@@ -40,10 +41,10 @@ export default class GameBoard {
         this.domElement.setAttribute( 'style', 'border:1px solid black;' );
         domNode.appendChild( this.domElement );
     }
-    public init( blocks: Array<BlockConfig>, balls: Array<ballConfig> ): void {
+    public init( level: LevelI ): void {
         // build stuff
-        this.renderedBlocks = this.renderBlocks( blocks );
-        this.balls = this.renderBalls( balls );
+        this.renderedBlocks = this.renderBlocks( level.blocks );
+        this.balls = this.renderBalls( level.balls );
         this.paddle = this.buildPaddle( 9, 3 );
 
         document.body.addEventListener('keydown', this.globalKeyListener.bind( this ) );
@@ -77,7 +78,7 @@ export default class GameBoard {
             this.createBullet.bind( this )
         );
     }
-    public createBullet( start: Point ): void {
+    public createBullet( start: Vector ): void {
         this.bullets.push( new Bullet( start, this.domElement ) );
     }
     private buildBall( ballConfig: ballConfig ): Ball {
@@ -95,10 +96,10 @@ export default class GameBoard {
     private destroyBlock( index: number ): void {
         this.renderedBlocks.splice( index, 1 );
     }
-    private getBlock( point: Point ): Block {
+    private getBlock( point: Vector ): Block {
         let block: Block;
         this.renderedBlocks.some( ( b: Block, i: number ) => {
-            let blockPoint: Point = b.getPoint();
+            let blockPoint: Vector = b.getPoint();
             let blockSize: Size = b.getSize();
 
             if ( CollisionUtil.isNear( point, blockPoint, blockSize ) &&
@@ -138,8 +139,8 @@ export default class GameBoard {
             const speed: number = bullet.getSpeed( true );
             let blockStrength: number;
             let bulletStrength: number;
-            let nxtPos: Point;
-            let curPos: Point;
+            let nxtPos: Vector;
+            let curPos: Vector;
             let hitBlockX: boolean;
             let hitBlockY: boolean;
             let block: Block;
@@ -209,12 +210,12 @@ export default class GameBoard {
         bulletsToDelete.forEach( ( idx: number ) => {
             this.bullets.splice( idx + offset, 1 );
             offset -= 1;
-        })
+        });
     }
     private updateBalls(): void {
         let ballsToDelete: Array<number> = [];
         let offset: number = 0;
-        const paddlePos: Point = this.paddle.getPoint();
+        const paddlePos: Vector = this.paddle.getPoint();
         const paddleSize: Size = this.paddle.getSize();
         // for each ball
         // get new pos
@@ -224,24 +225,24 @@ export default class GameBoard {
         //  invert trajectory
         // send new pos
         this.balls.forEach( function( ball: Ball, index: number ) {
-            let nxtPos: Point = ball.getNextPosition();
+            let nxtPos: Vector = ball.getNextPosition();
             let hitBlockX: boolean;
             let hitBlockY: boolean;
             let block: Block;
 
             // check if it side wall
             if ( nxtPos.x < 0 || nxtPos.x > this.size.width ) {
-                ball.invert( 'x' );
+                ball.invertTraj( 'x' );
             }
             // check if hit top wall or paddle
             if ( nxtPos.y < 0 || CollisionUtil.isCollision( nxtPos, paddlePos, paddleSize ) ) {
-                ball.invert( 'y' );
+                ball.invertTraj( 'y' );
             }
             // check if fell off screen
             if ( nxtPos.y >= this.size.height ) {
                 ballsToDelete.push( index );
                 // TODO: make sure it gets deleted, don't want a memory leak
-                ball.destroy( this.domElement );
+                ball.destroy();
                 return;
             }
 
@@ -250,7 +251,7 @@ export default class GameBoard {
             block = this.getBlock( { x: nxtPos.x, y: ball.point.y } );
             if ( block ) {
                 hitBlockX = true;
-                ball.invert( 'x' );
+                ball.invertTraj( 'x' );
                 // TODO: different strength for balls
                 if (block.getHit( 1 ) === 0) {
                     this.destroyBlock( block.index );
@@ -264,7 +265,7 @@ export default class GameBoard {
             block = this.getBlock( { x: ball.point.x, y: nxtPos.y } );
             if ( block ) {
                 hitBlockY = true;
-                ball.invert( 'y' );
+                ball.invertTraj( 'y' );
                 if (block.getHit( 1 ) === 0) {
                     this.destroyBlock( block.index );
                 } else {
@@ -275,8 +276,8 @@ export default class GameBoard {
             if ( !hitBlockX && !hitBlockY ) {
                 block = this.getBlock( nxtPos );
                 if ( block ) {
-                    ball.invert( 'y' );
-                    ball.invert( 'x' );
+                    ball.invertTraj( 'y' );
+                    ball.invertTraj( 'x' );
                     if (block.getHit( 1 ) === 0) {
                         this.destroyBlock( block.index );
                     } else {
@@ -285,12 +286,12 @@ export default class GameBoard {
                 }
             }
             nxtPos = ball.getNextPosition();
-            ball.update( nxtPos );
+            ball.updateDOMPosition( nxtPos );
         }, this);
         ballsToDelete.forEach( ( idx: number ) => {
             this.balls.splice( idx + offset, 1 );
             offset -= 1;
-        })
+        });
     }
     private keyUpDownHandler( e: KeyboardEvent ): void {
         let isKeyDown: boolean = e.type === 'keydown';

@@ -1,49 +1,12 @@
 import { SVGNAMESPACE } from './Constants';
-import Point from './Point';
+import Vector from '../interfaces/Vector';
 import Trajectory from './Trajectory';
-import ballConfig from './interfaces/BallConfig';
+import ballConfig from '../interfaces/BallConfig';
+import Entity from './Entity';
 
-export default class Ball {
-    traj: Trajectory;
-    point: Point;
-    r: number;
-    private domElement: SVGCircleElement;
-    private mountPoint: SVGElement;
+export default class Ball extends Entity {
 
-    constructor( ballConfig: ballConfig, mountPoint?: SVGElement ) {
-        this.traj = new Trajectory( ballConfig.trajectory );
-        this.point = ballConfig.point;
-        this.r = ballConfig.radius;
-        this.domElement = document.createElementNS(
-            SVGNAMESPACE,
-            'circle'
-        );
-        this.domElement.setAttribute( 'cx', String( this.point.x ) );
-        this.domElement.setAttribute( 'cy', String( this.point.y ) );
-        this.domElement.setAttribute( 'r', String( this.r ) );
-        if ( mountPoint ) {
-            mountPoint.appendChild( this.domElement );
-        }
-    }
-    public invert( axis: any ) {
-        this.traj.invert( axis );
-    }
-    public update( point: Point ) {
-        this.point = point;
-        this.updateDOM();
-    }
-    public updateDOM() {
-        this.domElement.setAttribute( 'cx', String( this.point.x ) );
-        this.domElement.setAttribute( 'cy', String( this.point.y ) );
-    }
-    public getNextPosition() {
-        return {
-            x: this.point.x + this.traj.x,
-            y: this.point.y + this.traj.y
-        };
-    }
-    public destroy( element: SVGElement ) {
-        // TODO: add some cool animations on destroy
-        element.removeChild( this.domElement );
+    constructor( ballConfig: ballConfig, mountNode: SVGElement ) {
+        super( ballConfig.point, ballConfig.radius, ballConfig.trajectory, 'circle', mountNode );
     }
 }

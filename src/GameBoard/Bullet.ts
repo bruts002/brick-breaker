@@ -1,42 +1,27 @@
 import { SVGNAMESPACE } from './Constants';
-import AbstractElement from './AbstractElement';
+import Entity from './Entity';
 import Size from '../interfaces/Size';
 import Trajectory from './Trajectory';
-import Point from './Point';
+import Vector from '../interfaces/Vector';
 
-export default class Bullet extends AbstractElement {
+export default class Bullet extends Entity {
 
     private strength: number;
-    private traj: Trajectory;
-    private mountNode: SVGElement;
-    private domElement: SVGRectElement;
-
     public isDestroyed: Boolean;
 
-    constructor( point: Point, mountNode: SVGElement ) {
+    constructor( point: Vector, mountNode: SVGElement ) {
         let size: Size = { width: 1, height: 3 };
-        super( point, size );
-        // TODO extend functionality for size, traj, etc
-        this.traj = new Trajectory( { x: 0, y: -9 } );
+        let attributes = {
+            'fill': 'red',
+            'stroke': 'black',
+            'stroke-width': '0.5'
+        };
+        super( point, size, { x: 0, y: -9 }, 'rect', mountNode, attributes );
         this.strength = 1;
-        this.mountNode = mountNode;
-
-        this.domElement = document.createElementNS(
-            SVGNAMESPACE,
-            'rect'
-        );
-        this.domElement.setAttribute('x', String(this.point.x));
-        this.domElement.setAttribute('y', String(this.point.y));
-        this.domElement.setAttribute('width', String(this.size.width));
-        this.domElement.setAttribute('height', String(this.size.height));
-        this.domElement.setAttribute('fill', 'red');
-        this.domElement.setAttribute('stroke', 'black');
-        this.domElement.setAttribute('stroke-width', '0.5');
 
         this.isDestroyed = false;
-        this.mountNode.appendChild(this.domElement);
     }
-    public getNextPosition(): Point {
+    public getNextPosition(): Vector {
         return {
             x: this.point.x + Math.sign(this.traj.x),
             y: this.point.y + Math.sign(this.traj.y)
@@ -53,12 +38,11 @@ export default class Bullet extends AbstractElement {
         return this.strength;
     }
     public getSpeed( abs: Boolean ): number {
-        return this.traj.getSpeed( abs )
+        return this.traj.getSpeed( abs );
     }
     public update(): void {
         this.point = this.getNextPosition();
-        this.domElement.setAttribute('x', String(this.point.x));
-        this.domElement.setAttribute('y', String(this.point.y));
+        this.updateDOMPosition();
     }
     public destroy(): void {
         // TODO: add some cool animations on destroy

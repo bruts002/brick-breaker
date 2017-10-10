@@ -29,7 +29,11 @@ var config = {
         use: ["awesome-typescript-loader", "source-map-loader"]
       },
       { test: /\.html$/, loader: "html-loader" },
-      { test: /\.css$/, loaders: ["style-loader", "css-loader"] }
+      { test: /\.css$/, loaders: ["style-loader", "css-loader"] },
+      {
+          test: /\.(eot|svg|ttf|woff|woff2)$/,
+          loader: 'file?name=public/fonts/[name].[ext]'
+      }
     ]
   },
   resolve: {

@@ -1,16 +1,15 @@
-import Point from './Point';
+import Vector  from '../interfaces/Vector';
 export default class Trajectory {
-    x: number;
-    y: number;
-    // TODO should not use Point, but create a Vector class/type and use that
-    constructor(point: Point) {
+    public x: number;
+    public y: number;
+    constructor( point: Vector ) {
         this.x = point.x;
         this.y = point.y;
     }
-    invert(axis: string) {
+    public invert( axis: 'x'|'y' ) {
         this[axis] = this[axis] * -1;
     }
-    speed(val: number) {
+    public speed( val: number ) {
         this.x = this.x > 0 ? this.x + val : this.x - val;
         this.y = this.y > 0 ? this.y + val : this.y - val;
     }
