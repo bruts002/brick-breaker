@@ -9,9 +9,8 @@ export default class Bullet extends Entity {
     private strength: number;
     public isDestroyed: Boolean;
 
-    constructor( point: Vector, mountNode: SVGElement ) {
-        let size: Size = { width: 1, height: 3 };
-        let attributes = {
+    constructor( point: Vector, size: Size, mountNode: SVGElement ) {
+        const attributes = {
             'fill': 'red',
             'stroke': 'black',
             'stroke-width': '0.5'

@@ -48,6 +48,12 @@
       text-align: center;
       box-shadow: 0 5px 8px 0 rgba(0,0,0,0.2),0 7px, 20px, 0 rgba(0,0,0,0.17);
   }
+  .modal-content.fail {
+      border: 15px solid #ad0e0e;
+  }
+  .modal-content.success {
+      border: 15px solid #008000;
+  }
   
   .closeBtn {
       color: #ccc;
@@ -61,11 +67,42 @@
       text-decoration: none;
       cursor: pointer;
   }
+
+  .level-node {
+      display: inline-block;
+      width: 155px;
+      height: 155px;
+      padding: 5px;
+      margin: 5px;
+  }
+  .level-node.allowed:hover {
+      background: pink;
+      cursor: pointer;
+  }
+  .level-node.locked:hover {
+      background: thistle;
+      cursor: not-allowed;
+  }
+  .level-node img {
+      border: 2px solid black;
+  }
+  .level-node p {
+      margin: 5px 0;
+  }
+  .status-bar {
+      float: right;
+      width: calc( 15% - 2px );
+      text-align: center;
+  }
+  .status-bar #rewards #selected {
+      border: 2px solid red;
+  }
 </style>
 
 </head>
 
 <body>
+    <div id="gameBoard"></div>
 </body>
 
 </html>

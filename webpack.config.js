@@ -60,7 +60,7 @@ var config = {
       output: { comments: false },
       sourceMap: true
     }),
-    new DashboardPlugin({ port: 11111 }),
+    new DashboardPlugin(),
     new webpack.LoaderOptionsPlugin({
       options: {
         tslint: {

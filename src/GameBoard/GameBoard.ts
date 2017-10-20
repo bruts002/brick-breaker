@@ -10,10 +10,16 @@ import Paddle from './Paddle';
 import Bullet from './Bullet';
 import CollisionUtil from './CollisionUtil';
 import Modal from '../Modal';
+import LevelSelector from '../LevelSelector/LevelSelector';
+import UserScore from '../UserScore/UserScore';
+import StatusBar from './StatusBar/StatusBar';
+import Reward from './Reward';
+import RewardEnum from '../interfaces/Reward';
 
 export default class GameBoard {
     private activeKeys: Map<number, Boolean>;
     private bullets: Array<Bullet>;
+    private rewards: Array<Reward>;
     private updateInterval: number;
     private balls: Array<Ball>;
     private size: Size;
@@ -22,33 +28,57 @@ export default class GameBoard {
     private paddle: Paddle;
     private isPaused: Boolean;
     private modal: Modal;
+    private levelSelector: LevelSelector;
+    private levelEnded: Boolean;
+    private mountNode: HTMLElement;
+    private statusBar: StatusBar;
+    private score: number;
 
-    public constructor( size: Size, domNode: HTMLElement ) {
+    public constructor( size: Size, mountNode: HTMLElement, levelSelector: LevelSelector, levelNumber: number ) {
         this.activeKeys = new Map();
         this.modal = new Modal();
         this.balls = [];
         this.bullets = [];
+        this.rewards = [];
         this.size = size;
+        this.levelSelector = levelSelector;
+        this.levelEnded = false;
+        this.mountNode = mountNode;
+        this.score = 0;
 
         this.domElement = document.createElementNS(
             SVGNAMESPACE,
             'svg'
         );
-        this.domElement.setAttribute( 'width', '100%' );
+        this.domElement.setAttribute( 'xmlns', SVGNAMESPACE );
+        this.domElement.setAttribute( 'width', '85%' );
         this.domElement.setAttribute( 'height', '100%' );
+ // TODO: figure out how to set background to SVG Element
+ //       or have a rect container that the rest of the elements go on to, instead of SVG element
+        this.domElement.setAttribute( 'fill', 'black' );
         this.domElement.setAttribute( 'viewBox', '0 0 ' + this.size.width + ' ' + this.size.height );
         // TODO: use classes instead of inline styles
         this.domElement.setAttribute( 'style', 'border:1px solid black;' );
-        domNode.appendChild( this.domElement );
+        mountNode.appendChild( this.domElement );
+        this.statusBar = new StatusBar( this.rewardSelect.bind( this ), levelNumber, this.mountNode );
+    }
+    private rewardSelect( reward: RewardEnum ): void {
+        this.paddle.applyReward( reward );
     }
     public init( level: LevelI ): void {
         // build stuff
         this.renderedBlocks = this.renderBlocks( level.blocks );
         this.balls = this.renderBalls( level.balls );
-        this.paddle = this.buildPaddle( 9, 3 );
+        this.paddle = this.buildPaddle();
 
         document.body.addEventListener('keydown', this.globalKeyListener.bind( this ) );
         this.start();
+    }
+    private destroy(): void {
+        document.body.removeEventListener('keydown', this.globalKeyListener.bind( this ));
+        while (this.mountNode.hasChildNodes()) {
+            this.mountNode.removeChild(this.mountNode.lastChild);
+        }
     }
     private start(): void {
         // TODO give the user a count down before starting
@@ -65,21 +95,15 @@ export default class GameBoard {
         document.body.addEventListener('keydown', this.keyUpDownHandler.bind( this ) );
         document.body.addEventListener('keyup', this.keyUpDownHandler.bind( this ) );
     }
-    private buildPaddle( paddleWidth: number, paddleHeight: number ): Paddle {
-        let paddleSize: Size = {
-            width: paddleWidth,
-            height: paddleHeight
-        };
+    private buildPaddle(): Paddle {
         return new Paddle(
-            paddleSize,
-            (this.size.width - paddleWidth) / 2,
             this.size,
             this.domElement,
             this.createBullet.bind( this )
         );
     }
-    public createBullet( start: Vector ): void {
-        this.bullets.push( new Bullet( start, this.domElement ) );
+    private createBullet( start: Vector, size: Size ): void {
+        this.bullets.push( new Bullet( start, size, this.domElement ) );
     }
     private buildBall( ballConfig: ballConfig ): Ball {
         return new Ball( ballConfig, this.domElement );
@@ -91,10 +115,13 @@ export default class GameBoard {
         return blocks.map( this.renderBlock, this );
     }
     private renderBlock( block: BlockConfig ): Block {
-        return new Block( block, this.domElement );
+        return new Block( block, this.domElement, this.dropReward.bind( this ) );
     }
     private destroyBlock( index: number ): void {
         this.renderedBlocks.splice( index, 1 );
+    }
+    private dropReward( start: Vector, type: RewardEnum ): void {
+        this.rewards.push( new Reward( start, type, this.domElement ) );
     }
     private getBlock( point: Vector ): Block {
         let block: Block;
@@ -111,9 +138,11 @@ export default class GameBoard {
         });
         return block;
     }
-    private endGame( message: string ): void {
-        alert( message );
-        this.stop();
+    private endGame( message: string, success: boolean ): void {
+        clearInterval( this.updateInterval );
+        this.levelEnded = true;
+        this.levelSelector.chooseLevel( message, success );
+        this.destroy();
     }
     private stop(): void {
         this.modal.show( 'Game Paused', this.start.bind( this ) );
@@ -122,15 +151,46 @@ export default class GameBoard {
     }
     private update(): void {
         if ( this.renderedBlocks.length === 0 ) {
-            this.endGame( 'you win' );
+            UserScore.setScore( 1, this.score );
+            this.endGame( 'Level complete!', true );
             return;
         } else if ( this.balls.length === 0 ) {
-            this.endGame( 'you lose' );
+            this.endGame( 'Level Failed!', false );
             return;
+        } else {
+            this.updateBalls();
+            this.updateBullets();
+            this.updateRewards();
+            this.dispatchActions();
         }
-        this.updateBalls();
-        this.updateBullets();
-        this.dispatchActions();
+    }
+    private applyReward( reward: RewardEnum ): void {
+        this.statusBar.addReward( reward );
+        this.paddle.applyReward( reward );
+    }
+    private updateRewards(): void {
+        let toDelete: Array<number> = [];
+        let offset: number = 0;
+        this.rewards.forEach( ( reward: Reward, index: number ) => {
+            const nxtPos = reward.getNextPosition();
+            const paddlePos: Vector = this.paddle.getPoint();
+            const paddleSize: Size = this.paddle.getSize();
+
+            if ( nxtPos.y >= this.size.height ) {
+                toDelete.push( index );
+                reward.destroy();
+            } else if ( CollisionUtil.isCollision( nxtPos, paddlePos, paddleSize ) ) {
+                this.applyReward( reward.rewardType );
+                toDelete.push( index );
+                reward.destroy();
+            } else {
+                reward.updateDOMPosition( nxtPos );
+            }
+        });
+        toDelete.forEach( ( idx: number ) => {
+            this.rewards.splice( idx + offset, 1 );
+            offset -= 1;
+        });
     }
     private updateBullets(): void {
         let bulletsToDelete: Array<number> = [];
@@ -217,25 +277,19 @@ export default class GameBoard {
         let offset: number = 0;
         const paddlePos: Vector = this.paddle.getPoint();
         const paddleSize: Size = this.paddle.getSize();
-        // for each ball
-        // get new pos
-        // check pos
-        //  destroy block if needed
-        //  destroy ball if needed
-        //  invert trajectory
-        // send new pos
         this.balls.forEach( function( ball: Ball, index: number ) {
+            const radius = ball.getRadius();
             let nxtPos: Vector = ball.getNextPosition();
             let hitBlockX: boolean;
             let hitBlockY: boolean;
             let block: Block;
 
             // check if it side wall
-            if ( nxtPos.x < 0 || nxtPos.x > this.size.width ) {
+            if ( nxtPos.x - radius < 0 || nxtPos.x + radius > this.size.width ) {
                 ball.invertTraj( 'x' );
             }
             // check if hit top wall or paddle
-            if ( nxtPos.y < 0 || CollisionUtil.isCollision( nxtPos, paddlePos, paddleSize ) ) {
+            if ( nxtPos.y - radius < 0 || CollisionUtil.isCollision( nxtPos, paddlePos, paddleSize ) ) {
                 ball.invertTraj( 'y' );
             }
             // check if fell off screen
@@ -250,6 +304,7 @@ export default class GameBoard {
             nxtPos = ball.getNextPosition();
             block = this.getBlock( { x: nxtPos.x, y: ball.point.y } );
             if ( block ) {
+                this.score += 5;
                 hitBlockX = true;
                 ball.invertTraj( 'x' );
                 // TODO: different strength for balls
@@ -264,6 +319,7 @@ export default class GameBoard {
             nxtPos = ball.getNextPosition();
             block = this.getBlock( { x: ball.point.x, y: nxtPos.y } );
             if ( block ) {
+                this.score += 5;
                 hitBlockY = true;
                 ball.invertTraj( 'y' );
                 if (block.getHit( 1 ) === 0) {
@@ -287,6 +343,7 @@ export default class GameBoard {
             }
             nxtPos = ball.getNextPosition();
             ball.updateDOMPosition( nxtPos );
+            this.statusBar.updateScore( this.score );
         }, this);
         ballsToDelete.forEach( ( idx: number ) => {
             this.balls.splice( idx + offset, 1 );
@@ -298,7 +355,7 @@ export default class GameBoard {
         this.activeKeys.set( e.keyCode, isKeyDown );
     }
     private globalKeyListener( e: KeyboardEvent ): void {
-        if ( e.keyCode === 27 ) {
+        if ( e.keyCode === 27 && this.levelEnded === false ) {
             this.pauseGame();
         }
     }
@@ -306,9 +363,11 @@ export default class GameBoard {
         this.activeKeys.forEach( ( value: Boolean, key: number ): void => {
             if ( value ) {
                 switch ( key ) {
+                    case 65:
                     case 37:
                         this.onKeyLeft();
                         break;
+                    case 68:
                     case 39:
                         this.onKeyRight();
                         break;
@@ -327,7 +386,7 @@ export default class GameBoard {
         this.paddle.moveRight();
     }
     private onSpaceBar(): void {
-        this.paddle.shoot();
+        this.paddle.useReward();
     }
     private pauseGame(): void {
         if ( this.isPaused ) {

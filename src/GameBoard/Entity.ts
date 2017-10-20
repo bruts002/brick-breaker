@@ -66,6 +66,17 @@ export default class Entity {
         this.domElement.setAttribute( yAttr, String( this.point.y ) );
     }
 
+    protected updateSize( size?: Size|number ) {
+        if ( this.type === 'circle' ) {
+            if ( size ) this.radius = +size;
+            this.domElement.setAttribute( 'r', String( this.radius ) );
+        } else {
+            if ( size ) this.size = <Size>size;
+            this.domElement.setAttribute( 'width', String( this.size.width ) );
+            this.domElement.setAttribute( 'height', String( this.size.height ) );
+        }
+    }
+
     public invertTraj( axis: 'x'|'y' ) {
         this.traj.invert( axis );
     }
@@ -83,6 +94,10 @@ export default class Entity {
 
     public getSize(): Size {
         return this.size;
+    }
+
+    public getRadius(): number {
+        return this.radius;
     }
 
 }

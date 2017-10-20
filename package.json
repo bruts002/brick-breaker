@@ -22,7 +22,6 @@
   "license": "ISC",
   "devDependencies": {
     "@types/jasmine": "^2.5.53",
-    "@types/lodash": "^4.14.70",
     "awesome-typescript-loader": "^3.2.1",
     "cross-env": "^5.0.1",
     "css-loader": "^0.28.4",
