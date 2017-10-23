@@ -13,7 +13,7 @@ export default class Main {
     constructor( mountNode: HTMLElement ) {
         this.mountNode = mountNode;
         this.levelSelector = new LevelSelector( this.setLevel.bind(this) );
-        this.levelSelector.chooseLevel();
+        this.levelSelector.show();
     }
 
     private setLevel( level: LevelI, levelNumber: number ): void {

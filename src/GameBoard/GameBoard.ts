@@ -141,7 +141,7 @@ export default class GameBoard {
     private endGame( message: string, success: boolean ): void {
         clearInterval( this.updateInterval );
         this.levelEnded = true;
-        this.levelSelector.chooseLevel( message, success );
+        this.levelSelector.show( message, success );
         this.destroy();
     }
     private stop(): void {
@@ -151,7 +151,7 @@ export default class GameBoard {
     }
     private update(): void {
         if ( this.renderedBlocks.length === 0 ) {
-            UserScore.setScore( 1, this.score );
+            UserScore.setScore( 1, 'paddle', this.score );
             this.endGame( 'Level complete!', true );
             return;
         } else if ( this.balls.length === 0 ) {
