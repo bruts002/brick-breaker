@@ -16,9 +16,15 @@ export default class Main {
         this.levelSelector.show();
     }
 
-    private setLevel( level: LevelI, levelNumber: number ): void {
+    private setLevel( level: LevelI, levelNumber: number, option: 'player'|'paddle' ): void {
         this.clearLevel();
-        this.gameBoard = new GameBoard( level.size, this.mountNode, this.levelSelector, levelNumber );
+        this.gameBoard = new GameBoard(
+            level.size,
+            this.mountNode,
+            this.levelSelector,
+            levelNumber,
+            option
+         );
         this.gameBoard.init(level);
     }
 

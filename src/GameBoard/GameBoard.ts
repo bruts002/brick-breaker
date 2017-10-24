@@ -6,7 +6,9 @@ import ballConfig from '../interfaces/BallConfig';
 import BlockConfig from '../interfaces/BlockConfig';
 import Size from '../interfaces/Size';
 import LevelI from '../interfaces/LevelI';
+import AI from './AI';
 import Paddle from './Paddle';
+import Player from './Player';
 import Bullet from './Bullet';
 import CollisionUtil from './CollisionUtil';
 import Modal from '../Modal';
@@ -26,6 +28,7 @@ export default class GameBoard {
     private domElement: SVGElement;
     private renderedBlocks: Array<Block>;
     private paddle: Paddle;
+    private player: Player;
     private isPaused: Boolean;
     private modal: Modal;
     private levelSelector: LevelSelector;
@@ -33,8 +36,15 @@ export default class GameBoard {
     private mountNode: HTMLElement;
     private statusBar: StatusBar;
     private score: number;
+    private option: 'player'|'paddle';
 
-    public constructor( size: Size, mountNode: HTMLElement, levelSelector: LevelSelector, levelNumber: number ) {
+    public constructor(
+        size: Size,
+        mountNode: HTMLElement,
+        levelSelector: LevelSelector,
+        levelNumber: number,
+        option: 'paddle'|'player'
+    ) {
         this.activeKeys = new Map();
         this.modal = new Modal();
         this.balls = [];
@@ -45,6 +55,7 @@ export default class GameBoard {
         this.levelEnded = false;
         this.mountNode = mountNode;
         this.score = 0;
+        this.option = option;
 
         this.domElement = document.createElementNS(
             SVGNAMESPACE,
@@ -69,10 +80,19 @@ export default class GameBoard {
         // build stuff
         this.renderedBlocks = this.renderBlocks( level.blocks );
         this.balls = this.renderBalls( level.balls );
-        this.paddle = this.buildPaddle();
+        this.buildPlayers();
 
         document.body.addEventListener('keydown', this.globalKeyListener.bind( this ) );
         this.start();
+    }
+    private buildPlayers(): void {
+        if ( this.option === 'paddle' ) {
+            this.paddle = this.buildPaddle();
+            this.player = AI.buildPlayer( this.domElement );
+        } else if ( this.option === 'player' ) {
+            this.player = this.buildPlayer();
+            this.paddle = AI.buildPaddle( this.domElement );
+        }
     }
     private destroy(): void {
         document.body.removeEventListener('keydown', this.globalKeyListener.bind( this ));
@@ -101,6 +121,9 @@ export default class GameBoard {
             this.domElement,
             this.createBullet.bind( this )
         );
+    }
+    private buildPlayer(): Player {
+        return new Player();
     }
     private createBullet( start: Vector, size: Size ): void {
         this.bullets.push( new Bullet( start, size, this.domElement ) );

@@ -12,6 +12,10 @@ export default class Overview {
     private paddleHighScore: Element;
     private playerHighScore: Element;
 
+    private playerOption: Element;
+    private paddleOption: Element;
+    private startButton: Element;
+
     private level: number;
     private option: String;
 
@@ -37,15 +41,32 @@ export default class Overview {
         this.levelNumber = domNode.getElementsByTagName( 'h3' )[0];
         this.paddleHighScore = domNode.querySelector( '#paddle-highscore' );
         this.playerHighScore = domNode.querySelector( '#player-highscore' );
-        domNode.getElementsByClassName( 'paddle-option' )[0].addEventListener('click', () => this.setOption( 'paddle' ) );
-        domNode.getElementsByClassName( 'player-option' )[0].addEventListener('click', () => this.setOption( 'player' ) );
-        domNode.querySelector( '#start' ).addEventListener( 'click', () => this.startLevel( this.level, this.option ) );
+        this.paddleOption = domNode.getElementsByClassName( 'paddle-option' )[0];
+        this.playerOption = domNode.getElementsByClassName( 'player-option' )[0];
+        this.startButton = domNode.querySelector( '#start' );
+        this.addEventListeners();
 
         mountNode.appendChild( domNode );
     }
 
+    private addEventListeners(): void {
+        this.paddleOption.addEventListener(
+            'click',
+            () => this.setOption( 'paddle' ) );
+        this.playerOption.addEventListener(
+            'click',
+            () => this.setOption( 'player' ) );
+        this.startButton.addEventListener( 'click', () => this.startLevel( this.level, this.option ) );
+    }
+
     private setOption( option: 'paddle'|'player' ) {
-        alert('triggered');
+        if ( option === 'paddle' ) {
+            this.paddleOption.classList.add( 'selected' );
+            this.playerOption.classList.remove( 'selected' );
+        } else if ( option === 'player' ) {
+            this.paddleOption.classList.remove( 'selected' );
+            this.playerOption.classList.add( 'selected' );
+        }
         this.option = option;
     }
 

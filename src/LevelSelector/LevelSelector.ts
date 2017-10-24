@@ -37,8 +37,8 @@ export default class LevelSelector {
         this.modal.show( message );
     }
 
-    private startLevel( levelNumber: number ): void {
-        this.cb( levelOne, levelNumber );
+    private startLevel( levelNumber: number, option: 'paddle'|'player' ): void {
+        this.cb( levelOne, levelNumber, option );
         this.modal.hide();
     }
 
