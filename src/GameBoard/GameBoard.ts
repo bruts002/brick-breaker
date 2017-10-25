@@ -9,7 +9,7 @@ import LevelI from '../interfaces/LevelI';
 import PlayerTypes from '../interfaces/PlayerTypes';
 import AI from './AI';
 import Paddle from './Paddle';
-import Player from './Player';
+import Guy from './Guy';
 import Bullet from './Bullet';
 import CollisionUtil from './CollisionUtil';
 import Modal from '../Modal';
@@ -20,7 +20,7 @@ import Reward from './Reward';
 import RewardEnum from '../interfaces/Reward';
 
 export default class GameBoard {
-    private activeKeys: Map<number, Boolean>;
+    private activeKeys: Map<number, boolean>;
     private bullets: Array<Bullet>;
     private rewards: Array<Reward>;
     private updateInterval: number;
@@ -28,12 +28,13 @@ export default class GameBoard {
     private size: Size;
     private domElement: SVGElement;
     private renderedBlocks: Array<Block>;
-    private paddle: Paddle;
-    private player: Player;
-    private isPaused: Boolean;
+    private ai: Paddle|Guy;
+    private player: Paddle|Guy;
+    private isPaused: boolean;
     private modal: Modal;
     private levelSelector: LevelSelector;
-    private levelEnded: Boolean;
+    private levelEnded: boolean;
+    private levelNumber: number;
     private mountNode: HTMLElement;
     private statusBar: StatusBar;
     private score: number;
@@ -54,6 +55,7 @@ export default class GameBoard {
         this.size = size;
         this.levelSelector = levelSelector;
         this.levelEnded = false;
+        this.levelNumber = levelNumber;
         this.mountNode = mountNode;
         this.score = 0;
         this.option = option;
@@ -71,29 +73,40 @@ export default class GameBoard {
         this.domElement.setAttribute( 'viewBox', '0 0 ' + this.size.width + ' ' + this.size.height );
         // TODO: use classes instead of inline styles
         this.domElement.setAttribute( 'style', 'border:1px solid black;' );
-        mountNode.appendChild( this.domElement );
         this.statusBar = new StatusBar( this.rewardSelect.bind( this ), levelNumber, this.mountNode );
+        mountNode.appendChild( this.domElement );
     }
     private rewardSelect( reward: RewardEnum ): void {
-        this.paddle.applyReward( reward );
+        this.player.applyReward( reward );
     }
     public init( level: LevelI ): void {
         // build stuff
         this.renderedBlocks = this.renderBlocks( level.blocks );
         this.balls = this.renderBalls( level.balls );
-        this.buildPlayers();
+        this.buildPlayer();
+        this.buildAI();
 
         document.body.addEventListener('keydown', this.globalKeyListener.bind( this ) );
         this.start();
     }
-    private buildPlayers(): void {
+    private buildPlayer(): void {
         if ( this.option === PlayerTypes.defender ) {
-            this.paddle = this.buildPaddle();
-            this.player = AI.buildPlayer( this.domElement );
+            this.player = this.buildPaddle();
         } else if ( this.option === PlayerTypes.capture ) {
-            this.player = this.buildPlayer();
-            this.paddle = AI.buildPaddle( this.domElement );
+            this.player = this.buildGuy();
         }
+    }
+    private buildAI(): void {
+        if ( this.option === PlayerTypes.defender ) {
+            this.ai = AI.buildGuy( this.domElement );
+        } else if ( this.option === PlayerTypes.capture ) {
+            this.ai = AI.buildPaddle(
+                this.size,
+                this.domElement,
+                this.createBullet.bind( this )
+            );
+        }
+
     }
     private destroy(): void {
         document.body.removeEventListener('keydown', this.globalKeyListener.bind( this ));
@@ -123,8 +136,8 @@ export default class GameBoard {
             this.createBullet.bind( this )
         );
     }
-    private buildPlayer(): Player {
-        return new Player();
+    private buildGuy(): Guy {
+        return new Guy();
     }
     private createBullet( start: Vector, size: Size ): void {
         this.bullets.push( new Bullet( start, size, this.domElement ) );
@@ -175,7 +188,7 @@ export default class GameBoard {
     }
     private update(): void {
         if ( this.renderedBlocks.length === 0 ) {
-            UserScore.setScore( 1, PlayerTypes.defender, this.score );
+            UserScore.setScore( this.levelNumber, PlayerTypes.defender, this.score );
             this.endGame( 'Level complete!', true );
             return;
         } else if ( this.balls.length === 0 ) {
@@ -186,19 +199,20 @@ export default class GameBoard {
             this.updateBullets();
             this.updateRewards();
             this.dispatchActions();
+            this.updateAI();
         }
     }
     private applyReward( reward: RewardEnum ): void {
         this.statusBar.addReward( reward );
-        this.paddle.applyReward( reward );
+        this.player.applyReward( reward );
     }
     private updateRewards(): void {
         let toDelete: Array<number> = [];
         let offset: number = 0;
         this.rewards.forEach( ( reward: Reward, index: number ) => {
             const nxtPos = reward.getNextPosition();
-            const paddlePos: Vector = this.paddle.getPoint();
-            const paddleSize: Size = this.paddle.getSize();
+            const paddlePos: Vector = this.player.getPoint();
+            const paddleSize: Size = this.player.getSize();
 
             if ( nxtPos.y >= this.size.height ) {
                 toDelete.push( index );
@@ -296,11 +310,25 @@ export default class GameBoard {
             offset -= 1;
         });
     }
+    private getPaddlePoint(): Vector {
+        if ( this.option === PlayerTypes.defender ) {
+            return this.player.getPoint();
+        } else if ( this.option === PlayerTypes.capture ) {
+            return this.ai.getPoint();
+        }
+    }
+    private getPaddleSize(): Size {
+        if ( this.option === PlayerTypes.defender ) {
+            return this.player.getSize();
+        } else if ( this.option === PlayerTypes.capture ) {
+            return this.ai.getSize();
+        }
+    }
     private updateBalls(): void {
         let ballsToDelete: Array<number> = [];
         let offset: number = 0;
-        const paddlePos: Vector = this.paddle.getPoint();
-        const paddleSize: Size = this.paddle.getSize();
+        const paddlePos: Vector = this.getPaddlePoint();
+        const paddleSize: Size = this.getPaddleSize();
         this.balls.forEach( function( ball: Ball, index: number ) {
             const radius = ball.getRadius();
             let nxtPos: Vector = ball.getNextPosition();
@@ -384,7 +412,7 @@ export default class GameBoard {
         }
     }
     private dispatchActions(): void {
-        this.activeKeys.forEach( ( value: Boolean, key: number ): void => {
+        this.activeKeys.forEach( ( value: boolean, key: number ): void => {
             if ( value ) {
                 switch ( key ) {
                     case 65:
@@ -404,13 +432,20 @@ export default class GameBoard {
         });
     }
     private onKeyLeft(): void {
-        this.paddle.moveLeft();
+        this.player.moveLeft();
     }
     private onKeyRight(): void {
-        this.paddle.moveRight();
+        this.player.moveRight();
     }
     private onSpaceBar(): void {
-        this.paddle.useReward();
+        this.player.useReward();
+    }
+    private updateAI(): void {
+        AI.makeMove(
+            this.ai,
+            this.balls,
+            this.size
+        );
     }
     private pauseGame(): void {
         if ( this.isPaused ) {

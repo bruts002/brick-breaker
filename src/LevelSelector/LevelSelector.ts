@@ -42,5 +42,4 @@ export default class LevelSelector {
         this.cb( levelOne, levelNumber, option );
         this.modal.hide();
     }
-
 }

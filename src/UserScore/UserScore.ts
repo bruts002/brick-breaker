@@ -4,15 +4,15 @@ function getKey( level: number): string {
     return `level-${level}`;
 }
 
-function setScore( level: number, type: PlayerTypes, score: number): void {
+function setScore( level: number, playerType: PlayerTypes, score: number): void {
     const levelKey = getKey( level );
     const raw = localStorage.getItem( levelKey );
     if ( !raw ) {
         localStorage.setItem( levelKey, JSON.stringify({
-            [type]: score
+            [playerType]: score
         }));
-    } else if ( raw[type] < score ) {
-        raw[type] = score;
+    } else if ( raw[playerType] < score ) {
+        raw[playerType] = score;
         localStorage.setItem( levelKey, JSON.stringify( { raw } ) );
     }
 }

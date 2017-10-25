@@ -1,17 +1,35 @@
 import Paddle from './Paddle';
-import Player from './Player';
+import Guy from './Guy';
+import Ball from './Ball';
 
-function buildPaddle( mountNode: SVGElement ): Paddle {
+import Size from '../interfaces/Size';
+
+function makeMove( ai: Paddle|Guy, balls: Array<Ball>, size: Size ): void {
+    if ( ai instanceof Paddle ) {
+        makePaddleMove( ai, balls, size );
+    } else if ( ai instanceof Guy ) {
+        makeGuyMove( ai );
+    }
+}
+function makePaddleMove( paddle: Paddle, balls: Array<Ball>, size: Size ): void {
+    let nextBall: Ball;
+    paddle.moveRight();
+}
+function makeGuyMove( guy: Guy ): void {
+
+}
+function buildPaddle( size: Size, mountNode: SVGElement, emitBullet: Function ): Paddle {
     return new Paddle(
-        { width: 0, height: 0 },
+        size,
         mountNode,
-        function() {}
+        emitBullet
     );
 }
-function buildPlayer( mountNode: SVGElement ): Player {
-    return new Player();
+function buildGuy( mountNode: SVGElement ): Guy {
+    return new Guy();
 }
 export default {
     buildPaddle,
-    buildPlayer
+    buildGuy,
+    makeMove
 };
