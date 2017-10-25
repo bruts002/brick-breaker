@@ -4,7 +4,16 @@ import Ball from './Ball';
 import Reward from './Reward';
 import Entity from './Entity';
 
+import Vector from '../interfaces/Vector';
 import Size from '../interfaces/Size';
+
+/**
+ * TODO: scoring for the AI
+ *  each paddle move is bad
+ *  each power up use is bad
+ *  each power up switch is bad
+ *  each ball drop is bad
+ */
 
 function makeMove( ai: Paddle|Guy, balls: Array<Ball>, rewards: Array<Reward> ): void {
     if ( ai instanceof Paddle ) {
@@ -71,8 +80,12 @@ function movePaddleToEntity( paddle: Paddle, entity: Entity, nextEntity?: Entity
     } else if ( isRight( entity, paddle ) ) {
         paddle.moveRight();
     } else {
-        // paddle is aligned properly, see if can move to anticipate next element, without losing the current element
+        // TODO: paddle is aligned properly, see if can move to anticipate next element, without losing the current element
     }
+}
+function getEntityDropPoint( entity: Entity, boardSize: Size ): Vector {
+    // TODO: implement a naive algorithm that ignores blocks
+    return { x: 0, y: 0 };
 }
 function isLeft( entity: Entity, paddle: Paddle ): boolean {
     return entity.point.x <= paddle.point.x;
