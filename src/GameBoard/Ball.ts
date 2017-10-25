@@ -9,7 +9,4 @@ export default class Ball extends Entity {
     constructor( ballConfig: ballConfig, mountNode: SVGElement ) {
         super( ballConfig.point, ballConfig.radius, ballConfig.trajectory, 'circle', mountNode );
     }
-    public getTraj(): Vector {
-        return this.traj;
-    }
 }

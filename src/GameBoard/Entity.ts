@@ -77,6 +77,10 @@ export default class Entity {
         }
     }
 
+    public getTraj(): Vector {
+        return this.traj;
+    }
+
     public invertTraj( axis: 'x'|'y' ) {
         this.traj.invert( axis );
     }

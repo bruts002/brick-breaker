@@ -9,6 +9,9 @@ export default class Paddle extends Entity {
     private boardSize: Size;
     private emitBullet: Function;
     private rewardType: RewardEnum;
+    public moveAmount: number;
+
+    private static defaultMoveAmount: number = 3;
 
     constructor( boardSize: Size, mountNode: SVGElement, emitBullet: Function ) {
         const paddlePoint = {
@@ -23,6 +26,7 @@ export default class Paddle extends Entity {
         super( paddlePoint, Paddle.sizes.default, { x: 0, y: 0 }, 'rect', mountNode, attributes );
         this.emitBullet = emitBullet;
         this.boardSize = boardSize;
+        this.moveAmount = Paddle.defaultMoveAmount;
     }
 
     private static sizes = {
@@ -31,16 +35,34 @@ export default class Paddle extends Entity {
     };
 
     public moveLeft(): void {
-        if ( this.point.x > 3 ) {
-            this.point.x = this.point.x - 3;
+        const nxtLeft: number = this.nextLeft();
+        if ( this.point.x !== nxtLeft ) {
+            this.point.x = nxtLeft;
             this.updateDOMPosition();
         }
     }
 
+    public nextLeft(): number {
+        if ( this.point.x > this.moveAmount ) {
+            return this.point.x - this.moveAmount;
+        } else {
+            return this.point.x;
+        }
+    }
+
     public moveRight(): void {
-        if ( this.point.x + this.size.width + 3 < this.boardSize.width ) {
-            this.point.x = this.point.x + 3;
+        const nxtRight: number = this.nextRight();
+        if ( this.point.x !== nxtRight ) {
+            this.point.x = nxtRight;
             this.updateDOMPosition();
+        }
+    }
+
+    public nextRight(): number {
+        if ( this.point.x + this.size.width + this.moveAmount < this.boardSize.width ) {
+            return this.point.x + this.moveAmount;
+        } else {
+            return this.point.x;
         }
     }
 
@@ -81,7 +103,7 @@ export default class Paddle extends Entity {
     private shootRocket(): void {
         const start: Vector = {
             x: this.point.x + ( this.size.width / 2 ),
-            y: this.point.y - 3
+            y: this.point.y - this.size.height
         };
         const size: Size = {
             width: 3, height: 9
@@ -94,11 +116,11 @@ export default class Paddle extends Entity {
         };
         this.emitBullet({
             x: this.point.x,
-            y: this.point.y - 3
+            y: this.point.y - this.size.height
         }, size );
         this.emitBullet({
             x: this.point.x + this.size.width,
-            y: this.point.y - 3
+            y: this.point.y - this.size.height
         }, size );
     }
     private makeWide(): void {
