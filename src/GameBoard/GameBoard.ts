@@ -30,6 +30,8 @@ export default class GameBoard {
     private renderedBlocks: Array<Block>;
     private ai: Paddle|Guy;
     private player: Paddle|Guy;
+    private paddle: Paddle;
+    private guy: Guy;
     private isPaused: boolean;
     private modal: Modal;
     private levelSelector: LevelSelector;
@@ -83,30 +85,19 @@ export default class GameBoard {
         // build stuff
         this.renderedBlocks = this.renderBlocks( level.blocks );
         this.balls = this.renderBalls( level.balls );
-        this.buildPlayer();
-        this.buildAI();
+        this.buildPlayerAndAI();
 
         document.body.addEventListener('keydown', this.globalKeyListener.bind( this ) );
         this.start();
     }
-    private buildPlayer(): void {
+    private buildPlayerAndAI(): void {
         if ( this.option === PlayerTypes.defender ) {
-            this.player = this.buildPaddle();
+            this.player = this.paddle = this.buildPaddle();
+            this.ai = this.guy = this.buildGuy();
         } else if ( this.option === PlayerTypes.capture ) {
-            this.player = this.buildGuy();
+            this.player = this.guy = this.buildGuy();
+            this.ai = this.paddle = this.buildPaddle();
         }
-    }
-    private buildAI(): void {
-        if ( this.option === PlayerTypes.defender ) {
-            this.ai = AI.buildGuy( this.domElement );
-        } else if ( this.option === PlayerTypes.capture ) {
-            this.ai = AI.buildPaddle(
-                this.size,
-                this.domElement,
-                this.createBullet.bind( this )
-            );
-        }
-
     }
     private destroy(): void {
         document.body.removeEventListener('keydown', this.globalKeyListener.bind( this ));
@@ -206,10 +197,8 @@ export default class GameBoard {
         if ( what === 'paddle' ) {
             if ( this.option === PlayerTypes.defender ) {
                 this.statusBar.addReward( reward );
-                this.player.applyReward( reward );
-            } else {
-                this.ai.applyReward( reward );
             }
+            this.paddle.applyReward( reward );
         } else if ( what === 'guy' ) {
         }
     }
@@ -218,8 +207,8 @@ export default class GameBoard {
         let offset: number = 0;
         this.rewards.forEach( ( reward: Reward, index: number ) => {
             const nxtPos = reward.getNextPosition();
-            const paddlePos: Vector = this.getPaddlePoint();
-            const paddleSize: Size = this.getPaddleSize();
+            const paddlePos: Vector = this.paddle.getPoint();
+            const paddleSize: Size = this.paddle.getSize();
 
             if ( nxtPos.y >= this.size.height ) {
                 toDelete.push( index );
@@ -317,25 +306,11 @@ export default class GameBoard {
             offset -= 1;
         });
     }
-    private getPaddlePoint(): Vector {
-        if ( this.option === PlayerTypes.defender ) {
-            return this.player.getPoint();
-        } else if ( this.option === PlayerTypes.capture ) {
-            return this.ai.getPoint();
-        }
-    }
-    private getPaddleSize(): Size {
-        if ( this.option === PlayerTypes.defender ) {
-            return this.player.getSize();
-        } else if ( this.option === PlayerTypes.capture ) {
-            return this.ai.getSize();
-        }
-    }
     private updateBalls(): void {
         let ballsToDelete: Array<number> = [];
         let offset: number = 0;
-        const paddlePos: Vector = this.getPaddlePoint();
-        const paddleSize: Size = this.getPaddleSize();
+        const paddlePos: Vector = this.paddle.getPoint();
+        const paddleSize: Size = this.paddle.getSize();
         this.balls.forEach( function( ball: Ball, index: number ) {
             const radius = ball.getRadius();
             let nxtPos: Vector = ball.getNextPosition();
@@ -451,7 +426,8 @@ export default class GameBoard {
         AI.makeMove(
             this.ai,
             this.balls,
-            this.rewards
+            this.rewards,
+            this.size
         );
     }
     private pauseGame(): void {
