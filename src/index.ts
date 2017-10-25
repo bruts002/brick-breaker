@@ -1,6 +1,7 @@
 import GameBoard from './GameBoard/GameBoard';
 import Size from './interfaces/Size';
 import LevelI from './interfaces/LevelI';
+import PlayerTypes from './interfaces/PlayerTypes';
 import LevelSelector from './LevelSelector/LevelSelector';
 
 export default class Main {
@@ -16,7 +17,7 @@ export default class Main {
         this.levelSelector.show();
     }
 
-    private setLevel( level: LevelI, levelNumber: number, option: 'player'|'paddle' ): void {
+    private setLevel( level: LevelI, levelNumber: number, option: PlayerTypes ): void {
         this.clearLevel();
         this.gameBoard = new GameBoard(
             level.size,

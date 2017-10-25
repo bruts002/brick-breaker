@@ -2,6 +2,7 @@ import Modal from '../Modal';
 import UserScore from '../UserScore/UserScore';
 import LevelThumbNails from './LevelThumbNails';
 import Overview from './Overview';
+import PlayerTypes from '../interfaces/PlayerTypes';
 
 // TODO: load the correct level dynamically when needed
 import levelOne from './levels/1/Level';
@@ -23,12 +24,12 @@ export default class LevelSelector {
     }
 
     private levelSelect( level: number ): void {
-        const paddleScore: number = UserScore.getScore( level, 'paddle' );
-        const playerScore: number = UserScore.getScore( level, 'player' );
+        const defenderScore: number = UserScore.getScore( level, PlayerTypes.defender );
+        const captureScore: number = UserScore.getScore( level, PlayerTypes.capture );
         this.overview.update({
             level: String( level ),
-            paddle: paddleScore,
-            player: playerScore
+            defender: defenderScore,
+            capture: captureScore
         });
     }
 
@@ -37,7 +38,7 @@ export default class LevelSelector {
         this.modal.show( message );
     }
 
-    private startLevel( levelNumber: number, option: 'paddle'|'player' ): void {
+    private startLevel( levelNumber: number, option: PlayerTypes ): void {
         this.cb( levelOne, levelNumber, option );
         this.modal.hide();
     }

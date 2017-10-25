@@ -33,4 +33,4 @@ export default {
     isCollision,
     isNear,
     getDistance
-}
+};

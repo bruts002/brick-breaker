@@ -1,8 +1,10 @@
+import PlayerTypes from '../interfaces/PlayerTypes';
+
 function getKey( level: number): string {
     return `level-${level}`;
 }
 
-function setScore( level: number, type: 'player'|'paddle', score: number): void {
+function setScore( level: number, type: PlayerTypes, score: number): void {
     const levelKey = getKey( level );
     const raw = localStorage.getItem( levelKey );
     if ( !raw ) {
@@ -15,18 +17,18 @@ function setScore( level: number, type: 'player'|'paddle', score: number): void 
     }
 }
 
-function getScore( level: number, type?: 'player'|'paddle' ): number {
+function getScore( level: number, type?: PlayerTypes ): number {
     const levelKey = getKey( level );
     const raw = localStorage.getItem( levelKey );
     if ( !raw ) return 0;
     const info = JSON.parse( raw );
     if ( !type ) {
-        if ( info.paddle && info.player ) return Math.max( info.paddle, info.player );
-        if ( info.paddle ) return info.paddle;
-        if ( info.player ) return info.player;
+        if ( info.defender && info.capture ) return Math.max( info.defender, info.capture );
+        if ( info.defender ) return info.defender;
+        if ( info.capture ) return info.capture;
     }
-    if ( type === 'player' ) return info.player ? info.player : 0;
-    if ( type === 'paddle' ) return info.paddle ? info.paddle : 0;
+    if ( type === PlayerTypes.capture ) return info.capture ? info.capture : 0;
+    if ( type === PlayerTypes.defender ) return info.defender ? info.defender : 0;
 }
 
 export default {

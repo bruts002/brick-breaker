@@ -6,6 +6,7 @@ import ballConfig from '../interfaces/BallConfig';
 import BlockConfig from '../interfaces/BlockConfig';
 import Size from '../interfaces/Size';
 import LevelI from '../interfaces/LevelI';
+import PlayerTypes from '../interfaces/PlayerTypes';
 import AI from './AI';
 import Paddle from './Paddle';
 import Player from './Player';
@@ -36,14 +37,14 @@ export default class GameBoard {
     private mountNode: HTMLElement;
     private statusBar: StatusBar;
     private score: number;
-    private option: 'player'|'paddle';
+    private option: PlayerTypes;
 
     public constructor(
         size: Size,
         mountNode: HTMLElement,
         levelSelector: LevelSelector,
         levelNumber: number,
-        option: 'paddle'|'player'
+        option: PlayerTypes
     ) {
         this.activeKeys = new Map();
         this.modal = new Modal();
@@ -86,10 +87,10 @@ export default class GameBoard {
         this.start();
     }
     private buildPlayers(): void {
-        if ( this.option === 'paddle' ) {
+        if ( this.option === PlayerTypes.defender ) {
             this.paddle = this.buildPaddle();
             this.player = AI.buildPlayer( this.domElement );
-        } else if ( this.option === 'player' ) {
+        } else if ( this.option === PlayerTypes.capture ) {
             this.player = this.buildPlayer();
             this.paddle = AI.buildPaddle( this.domElement );
         }
@@ -174,7 +175,7 @@ export default class GameBoard {
     }
     private update(): void {
         if ( this.renderedBlocks.length === 0 ) {
-            UserScore.setScore( 1, 'paddle', this.score );
+            UserScore.setScore( 1, PlayerTypes.defender, this.score );
             this.endGame( 'Level complete!', true );
             return;
         } else if ( this.balls.length === 0 ) {
