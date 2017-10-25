@@ -202,23 +202,30 @@ export default class GameBoard {
             this.updateAI();
         }
     }
-    private applyReward( reward: RewardEnum ): void {
-        this.statusBar.addReward( reward );
-        this.player.applyReward( reward );
+    private applyReward( reward: RewardEnum, what: 'paddle'|'guy' ): void {
+        if ( what === 'paddle' ) {
+            if ( this.option === PlayerTypes.defender ) {
+                this.statusBar.addReward( reward );
+                this.player.applyReward( reward );
+            } else {
+                this.ai.applyReward( reward );
+            }
+        } else if ( what === 'guy' ) {
+        }
     }
     private updateRewards(): void {
         let toDelete: Array<number> = [];
         let offset: number = 0;
         this.rewards.forEach( ( reward: Reward, index: number ) => {
             const nxtPos = reward.getNextPosition();
-            const paddlePos: Vector = this.player.getPoint();
-            const paddleSize: Size = this.player.getSize();
+            const paddlePos: Vector = this.getPaddlePoint();
+            const paddleSize: Size = this.getPaddleSize();
 
             if ( nxtPos.y >= this.size.height ) {
                 toDelete.push( index );
                 reward.destroy();
             } else if ( CollisionUtil.isCollision( nxtPos, paddlePos, paddleSize ) ) {
-                this.applyReward( reward.rewardType );
+                this.applyReward( reward.rewardType, 'paddle' );
                 toDelete.push( index );
                 reward.destroy();
             } else {
@@ -345,7 +352,7 @@ export default class GameBoard {
                 ball.invertTraj( 'y' );
             }
             // check if fell off screen
-            if ( nxtPos.y >= this.size.height ) {
+            if ( nxtPos.y + radius >= this.size.height ) {
                 ballsToDelete.push( index );
                 // TODO: make sure it gets deleted, don't want a memory leak
                 ball.destroy();
@@ -444,7 +451,7 @@ export default class GameBoard {
         AI.makeMove(
             this.ai,
             this.balls,
-            this.size
+            this.rewards
         );
     }
     private pauseGame(): void {
