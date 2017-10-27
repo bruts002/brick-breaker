@@ -3,6 +3,7 @@ import UserScore from '../UserScore/UserScore';
 import LevelThumbNails from './LevelThumbNails';
 import Overview from './Overview';
 import PlayerTypes from '../interfaces/PlayerTypes';
+import Loader from '../Loader';
 
 // TODO: load the correct level dynamically when needed
 import levelOne from './levels/1/Level';
@@ -17,6 +18,7 @@ export default class LevelSelector {
     private static defaultMessage: string = 'Choose a level';
 
     constructor( cb: Function ) {
+        Loader.css( 'LevelSelector' );
         this.cb = cb;
         this.modal = new Modal( false );
         this.levelThumbNails = new LevelThumbNails( this.modal.extensionPoint, this.levelSelect.bind( this ) );

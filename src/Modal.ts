@@ -1,3 +1,5 @@
+import Loader from './Loader';
+
 export default class Modal {
     private mdl: HTMLDivElement;
     private p: HTMLParagraphElement;
@@ -6,6 +8,7 @@ export default class Modal {
     private cb: Function;
 
     public constructor( showClose?: Boolean ) {
+        Loader.css( 'Modal' );
         const mdl: HTMLDivElement = document.createElement('div');
         const content: HTMLDivElement = document.createElement( 'div' );
         const p: HTMLParagraphElement = document.createElement( 'p' );

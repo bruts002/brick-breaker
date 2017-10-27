@@ -7,7 +7,7 @@
             "request": "attach",
             "sourceMaps": true,
             "port": 9222,
-            "diagnosticLogging": true,
+            "trace": true,
             "webRoot": "${workspaceRoot}/dist"
 
         }

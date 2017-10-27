@@ -29,8 +29,7 @@ function getDistance( p1: Vector, p2: Vector ): number {
     );
 }
 
-export default {
-    isCollision,
-    isNear,
-    getDistance
-};
+export { isCollision };
+export { isNear };
+export { getDistance };
+

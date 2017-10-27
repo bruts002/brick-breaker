@@ -1,11 +1,13 @@
 import UserScore from '../UserScore/UserScore';
 import AllLevels from './levels/AllLevels';
+import Loader from '../Loader';
 
 export default class LevelThumbNails {
     private mountNode: HTMLElement;
     private levelSelectCB: Function;
 
     constructor( mountNode: HTMLElement, levelSelectCB: Function ) {
+        Loader.css( 'LevelThumbNail' );
         this.mountNode = mountNode;
         this.levelSelectCB = levelSelectCB;
 

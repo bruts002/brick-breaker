@@ -11,7 +11,7 @@ import AI from './AI';
 import Paddle from './Paddle';
 import Guy from './Guy';
 import Bullet from './Bullet';
-import CollisionUtil from './CollisionUtil';
+import { isCollision, isNear } from './CollisionUtil';
 import Modal from '../Modal';
 import LevelSelector from '../LevelSelector/LevelSelector';
 import UserScore from '../UserScore/UserScore';
@@ -157,8 +157,8 @@ export default class GameBoard {
             let blockPoint: Vector = b.getPoint();
             let blockSize: Size = b.getSize();
 
-            if ( CollisionUtil.isNear( point, blockPoint, blockSize ) &&
-                 CollisionUtil.isCollision( point, blockPoint, blockSize ) ) {
+            if ( isNear( point, blockPoint, blockSize ) &&
+                 isCollision( point, blockPoint, blockSize ) ) {
                 block = b;
                 block.setIndex( i );
             }
@@ -213,7 +213,7 @@ export default class GameBoard {
             if ( nxtPos.y >= this.size.height ) {
                 toDelete.push( index );
                 reward.destroy();
-            } else if ( CollisionUtil.isCollision( nxtPos, paddlePos, paddleSize ) ) {
+            } else if ( isCollision( nxtPos, paddlePos, paddleSize ) ) {
                 this.applyReward( reward.rewardType, 'paddle' );
                 toDelete.push( index );
                 reward.destroy();
@@ -323,7 +323,7 @@ export default class GameBoard {
                 ball.invertTraj( 'x' );
             }
             // check if hit top wall or paddle
-            if ( nxtPos.y - radius < 0 || CollisionUtil.isCollision( nxtPos, paddlePos, paddleSize ) ) {
+            if ( nxtPos.y - radius < 0 || isCollision( nxtPos, paddlePos, paddleSize ) ) {
                 ball.invertTraj( 'y' );
             }
             // check if fell off screen

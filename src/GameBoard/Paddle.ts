@@ -11,27 +11,41 @@ export default class Paddle extends Entity {
     private rewardType: RewardEnum;
     public moveAmount: number;
 
-    private static defaultMoveAmount: number = 3;
-
     constructor( boardSize: Size, mountNode: SVGElement, emitBullet: Function ) {
         const paddlePoint = {
-            x: ( boardSize.width - Paddle.sizes.default.width ) / 2,
-            y: boardSize.height - Paddle.sizes.default.height - 0.5
+            x: Paddle.getStartX( boardSize.width ),
+            y: Paddle.getStartY( boardSize.height )
         };
-        const attributes = {
+        super( paddlePoint,
+               Paddle.defaults.sizes.default,
+               { x: 0, y: 0 },
+               'rect',
+               mountNode,
+               Paddle.defaults.attributes );
+        this.emitBullet = emitBullet;
+        this.boardSize = boardSize;
+        this.moveAmount = Paddle.defaults.moveAmount;
+    }
+
+    public static getStartX( boardSizeWidth: number ): number {
+        return ( ( boardSizeWidth - Paddle.defaults.sizes.default.width ) / 2 );
+    }
+
+    public static getStartY( boardSizeHeight: number ): number {
+        return ( boardSizeHeight - Paddle.defaults.sizes.default.height - 0.5 );
+    }
+
+    public static defaults = {
+        sizes: {
+            default: { width: 9, height: 3 },
+            wide: { width: 14, height: 3 }
+        },
+        attributes: {
             'fill': 'gray',
             'stroke': 'black',
             'stroke-width': '0.5'
-        };
-        super( paddlePoint, Paddle.sizes.default, { x: 0, y: 0 }, 'rect', mountNode, attributes );
-        this.emitBullet = emitBullet;
-        this.boardSize = boardSize;
-        this.moveAmount = Paddle.defaultMoveAmount;
-    }
-
-    private static sizes = {
-        default: { width: 9, height: 3 },
-        wide: { width: 14, height: 3 }
+        },
+        moveAmount: 3
     };
 
     public moveLeft(): void {
@@ -43,11 +57,11 @@ export default class Paddle extends Entity {
     }
 
     public nextLeft(): number {
-        if ( this.point.x > this.moveAmount ) {
-            return this.point.x - this.moveAmount;
-        } else {
-            return this.point.x;
+        let maxMove = this.moveAmount;
+        while( ( this.point.x - maxMove ) < 0 ) {
+            maxMove--;
         }
+        return this.point.x - maxMove;
     }
 
     public moveRight(): void {
@@ -59,11 +73,11 @@ export default class Paddle extends Entity {
     }
 
     public nextRight(): number {
-        if ( this.point.x + this.size.width + this.moveAmount < this.boardSize.width ) {
-            return this.point.x + this.moveAmount;
-        } else {
-            return this.point.x;
+        let maxMove = this.moveAmount;
+        while( ( this.point.x + this.size.width + maxMove ) > this.boardSize.width ) {
+            maxMove--;
         }
+        return this.point.x + maxMove;
     }
 
     public applyReward( rewardType: RewardEnum ) {
@@ -124,9 +138,9 @@ export default class Paddle extends Entity {
         }, size );
     }
     private makeWide(): void {
-        this.updateSize( Paddle.sizes.wide );
+        this.updateSize( Paddle.defaults.sizes.wide );
     }
     private makeDefault(): void {
-        this.updateSize( Paddle.sizes.default );
+        this.updateSize( Paddle.defaults.sizes.default );
     }
 }

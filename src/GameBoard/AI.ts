@@ -3,7 +3,7 @@ import Guy from './Guy';
 import Ball from './Ball';
 import Reward from './Reward';
 import Entity from './Entity';
-import CollisionUtil from './CollisionUtil';
+import { isCollision } from './CollisionUtil';
 
 import Vector from '../interfaces/Vector';
 import Size from '../interfaces/Size';
@@ -23,41 +23,44 @@ function makeMove( ai: Paddle|Guy, balls: Array<Ball>, rewards: Array<Reward>, s
         makeGuyMove( ai );
     }
 }
-function getNextEntity( balls: Array<Ball>, rewards: Array<Reward> ): Entity {
-    /**
-     * get balls heading down
-     * get lowest ball
-     */
-    let downWardBalls: Array<Ball> = balls.filter( ball => {
-        return ball.getTraj().y > 0;
-    });
-    if ( downWardBalls.length > 0 ) {
-        return getLowestEntity( downWardBalls );
-    } else { // all balls are going up
-        /**
-         * go for the reward if present otherwise,
-         * assume the ball at highest point will be going down next and follow that one
-         */
-        if ( rewards.length > 0 ) {
-            return getLowestEntity( rewards );
-        } else {
-            return getHighestEntity( balls );
-        }
-    }
+function likelyToFallFirst( a: Entity, b: Entity ): -1|0|1 {
+    const aTraj = a.getTraj();
+    const bTraj = b.getTraj();
+    const aY = a.getPoint().y;
+    const bY = b.getPoint().y;
+
+    // if only one is heading down return that one
+    if ( aTraj.y > 0 && bTraj.y < 0) return -1;
+    if ( bTraj.y > 0 && aTraj.y < 0) return 1;
+
+    // if both are heading down return the lower one
+    if ( bTraj.y > 0 && aTraj.y > 0) return aY > bY ? -1 : 1;
+
+    // if both are heading up return the higher one
+    if ( bTraj.y < 0 && aTraj.y < 0) return aY > bY ? 1 : -1;
+
+    // default case
+    return -1;
+}
+function catchable( entity: Entity, paddle: Paddle, size: Size ): boolean {
+    const paddleSize: Size = paddle.getSize();
+    const dropPoint: Vector = getEntityDropPoint( entity, size, paddleSize.height );
+    if ( !isLeft( dropPoint, paddle) && !isRight( dropPoint, paddle ) ) return true;
+    const movesTillDrop: number = getMovesTillDrop( entity, size.height, paddleSize.height );
+    const nearestPaddlePoint: number = dropPoint.x > paddle.point.x ? paddle.point.x + paddleSize.width : paddle.point.x;
+    const distance: number = Math.abs( nearestPaddlePoint - dropPoint.x );
+    return ( paddle.moveAmount * movesTillDrop ) > distance;
 }
 function makePaddleMove( paddle: Paddle, balls: Array<Ball>, rewards: Array<Reward>, size: Size ): void {
-    // always try using reward
+    // TODO: don't always try to use reward
     paddle.useReward();
-    const nextOne = getNextEntity( balls, rewards );
-    const nextOneAfter = getNextEntity(
-        balls.filter( ball => ball !== nextOne ),
-        rewards.filter( reward => reward !== nextOne )
-    ) || nextOne;
+    const entitiesToGoFor: Array<Entity> = balls//.concat( rewards )
+        .filter( e => catchable( e, paddle, size ) )
+        .sort( likelyToFallFirst );
     movePaddleToEntity(
         paddle,
-        nextOne,
-        size,
-        nextOneAfter
+        entitiesToGoFor,
+        size
     );
 }
 function getHighestEntity( entities: Array<Entity> ): Entity {
@@ -76,50 +79,67 @@ function getLowestEntity( entities: Array<Entity> ): Entity {
     });
     return lowestEntity;
 }
-function movePaddleToEntity( paddle: Paddle, entity: Entity, size: Size, nextEntity?: Entity ) {
-    const nxtPoint: Vector = getEntityDropPoint( entity, size );
-    const nxtNxtPoint: Vector = getEntityDropPoint( nextEntity, size );
-    if ( isLeft( nxtPoint, paddle ) ) {
+function movePaddleToEntity( paddle: Paddle, entities: Array<Entity>, size: Size ): void {
+    if ( entities.length === 0 ) return;
+    const paddleHeight: number = paddle.getSize().height;
+    const onlyOneLeft: boolean = entities.length === 1;
+    const nxtPoint: Vector = getEntityDropPoint( entities[0], size, paddleHeight );
+    const nxtNxtPoint: Vector = onlyOneLeft ? nxtPoint : getEntityDropPoint( entities[1], size, paddleHeight );
+    if ( isLeft( nxtPoint, paddle ) || canAndShouldMoveLeft( nxtNxtPoint, nxtPoint, paddle ) ) {
         paddle.moveLeft();
-    } else if ( isRight( nxtPoint, paddle ) ) {
+    } else if ( isRight( nxtPoint, paddle ) || canAndShouldMoveRight( nxtNxtPoint, nxtPoint, paddle ) ) {
         paddle.moveRight();
-    } else if ( entity !== nextEntity ) {
-        // TODO: paddle is aligned properly, see if can move to anticipate next element, without losing the current element
-        if ( isLeft( nxtNxtPoint, paddle ) &&
-             CollisionUtil.isCollision( nxtPoint, { x: paddle.nextLeft(), y: 0 }, paddle.getSize() )
-        ) {
-                paddle.moveLeft();
-        } else if ( isRight( nxtNxtPoint, paddle ) &&
-                    CollisionUtil.isCollision( nxtPoint, { x: paddle.nextRight(), y: 0 }, paddle.getSize() )
-        ) {
-                paddle.moveRight();
-        }
-    } else {
-        // TODO: only one entity left, predict its next fall
     }
 }
-function getEntityDropPoint( entity: Entity, boardSize: Size ): Vector {
+
+function getNextMove( entity: Entity, dropPoint: Vector ): Entity {
+    const traj: Vector = entity.getTraj();
+    return new Entity (
+        dropPoint,
+        entity.getSize(),
+        { x:traj.x, y: traj.y * -1 },
+        'circle',
+        SVGElement.prototype
+    );
+}
+
+function canAndShouldMoveLeft( candidate: Vector, current: Vector, paddle: Paddle): boolean {
+    return isLeft( candidate, paddle ) &&
+           isCollision( current,
+                        { x: paddle.nextLeft(), y: paddle.point.y },
+                        paddle.getSize()
+           );
+}
+
+function canAndShouldMoveRight( candidate: Vector, current: Vector, paddle: Paddle ): boolean {
+    return isRight( candidate, paddle ) &&
+           isCollision( current,
+                        { x: paddle.nextRight(), y: paddle.point.y },
+                        paddle.getSize()
+           );
+}
+
+function getMovesTillDrop( entity: Entity, boardHeight: number, paddleHeight: number ): number {
+    const traj: Vector = entity.getTraj();
+    const movesUpAndDown: number = traj.y > 0 ? 0 : 2 * entity.point.y;
+    const movesTillPaddle: number = boardHeight - paddleHeight - entity.point.y;
+    return ( movesUpAndDown + movesTillPaddle) / Math.abs( traj.y );
+}
+function getEntityDropPoint( entity: Entity, boardSize: Size, paddleHeight: number ): Vector {
     // naive algorithm that ignores blocks
     const traj: Vector = entity.getTraj();
     const point: Vector = entity.getPoint();
-    let movesTillHit: number = 0;
-    let xCoord: number = point.x;
-    let xOverFlow: number = 0;
-    if ( traj.y > 0 ) {
-        movesTillHit = ( boardSize.height - point.y ) / traj.y;
-    } else {
-        movesTillHit = ( ( 2 * point.y ) + ( boardSize.height - point.y ) ) / Math.abs( traj.y );
-    }
+    const movesTillHit: number = getMovesTillDrop( entity, boardSize.height, paddleHeight );
+    let xCoord: number = point.x + ( traj.x * movesTillHit );
+    const xOverFlow: number = xCoord - boardSize.width;
 
-    xCoord = point.x + ( traj.x * movesTillHit );
-    xOverFlow = xCoord - boardSize.width;
     if ( xOverFlow > 0 ) {
         xCoord -= xOverFlow * 2;
     }
 
     return {
         x: Math.abs( xCoord ),
-        y: 0
+        y: boardSize.height - paddleHeight - 0.5
     };
 }
 function isLeft( point: Vector, paddle: Paddle ): boolean {
