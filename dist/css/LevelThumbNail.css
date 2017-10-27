@@ -1,0 +1,31 @@
+.level-thumbnails {
+    height: 400px;
+    width: 400px;
+    min-height: 400px;
+    float: left;
+}
+
+.level-node {
+    display: inline-block;
+    width: 98px;
+    height: 98px;
+    padding: 5px;
+    margin: 5px;
+}
+.level-node#selected {
+    background: pink;
+}
+.level-node.allowed:hover {
+    background: pink;
+    cursor: pointer;
+}
+.level-node.locked:hover {
+    background: thistle;
+    cursor: not-allowed;
+}
+.level-node img {
+    border: 2px solid black;
+}
+.level-node p {
+    margin: 5px 0;
+}
