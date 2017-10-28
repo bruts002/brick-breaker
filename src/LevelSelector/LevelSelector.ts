@@ -41,7 +41,9 @@ export default class LevelSelector {
     }
 
     private startLevel( levelNumber: number, option: PlayerTypes ): void {
-        this.cb( levelOne, levelNumber, option );
-        this.modal.hide();
+        Loader.level( String( levelNumber ) )
+            .then( level => this.cb( level, levelNumber, option ) )
+            .catch( console.warn )
+            .then( () => this.modal.hide() );
     }
 }
