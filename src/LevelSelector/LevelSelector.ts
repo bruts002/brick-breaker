@@ -5,8 +5,6 @@ import Overview from './Overview';
 import PlayerTypes from '../interfaces/PlayerTypes';
 import Loader from '../Loader';
 
-// TODO: load the correct level dynamically when needed
-import levelOne from './levels/1/Level';
 
 export default class LevelSelector {
 
