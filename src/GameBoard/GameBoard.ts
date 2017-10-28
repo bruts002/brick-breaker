@@ -59,8 +59,12 @@ export default class GameBoard {
         this.levelEnded = false;
         this.levelNumber = levelNumber;
         this.mountNode = mountNode;
-        this.score = 0;
         this.option = option;
+        if ( this.option === PlayerTypes.defender ) {
+            this.score = 0;
+        } else if ( this.option === PlayerTypes.capture ) {
+            this.score = 200;
+        }
 
         this.domElement = document.createElementNS(
             SVGNAMESPACE,
@@ -128,7 +132,7 @@ export default class GameBoard {
         );
     }
     private buildGuy(): Guy {
-        return new Guy();
+        return new Guy( this.domElement );
     }
     private createBullet( start: Vector, size: Size ): void {
         this.bullets.push( new Bullet( start, size, this.domElement ) );
@@ -166,6 +170,15 @@ export default class GameBoard {
         });
         return block;
     }
+    private getGuy( point: Vector ): Guy {
+        const guyPoint = this.guy.getPoint();
+        const guySize = this.guy.getSize();
+
+        if ( isNear( point, guyPoint, guySize ) &&
+             isCollision( point, guyPoint, guySize ) ) {
+                 return this.guy;
+             }
+    }
     private endGame( message: string, success: boolean ): void {
         clearInterval( this.updateInterval );
         this.levelEnded = true;
@@ -177,13 +190,37 @@ export default class GameBoard {
         this.isPaused = true;
         clearInterval( this.updateInterval );
     }
+    private isGameEnded(): boolean {
+        let msg: string;
+        let done: boolean = false;
+        let success: boolean;
+        if ( this.option === PlayerTypes.defender ) {
+            if ( this.renderedBlocks.length === 0 ) {
+                msg = 'Level Complete!';
+                success = true;
+                done = true;
+            } else if ( this.balls.length === 0 ) {
+                msg = 'Level Failed!';
+                success = false;
+                done = true;
+            }
+        } else if ( this.option === PlayerTypes.capture ) {
+            if ( this.renderedBlocks.length === 0 ) {
+                msg = 'Level Failed!';
+                success = false;
+                done = true;
+            } else if ( this.balls.length === 0 ) {
+                msg = 'Level Complete!';
+                success = true;
+                done = true;
+            }
+        }
+        if ( done ) this.endGame( msg, success );
+        return done;
+    }
     private update(): void {
-        if ( this.renderedBlocks.length === 0 ) {
-            UserScore.setScore( this.levelNumber, PlayerTypes.defender, this.score );
-            this.endGame( 'Level complete!', true );
-            return;
-        } else if ( this.balls.length === 0 ) {
-            this.endGame( 'Level Failed!', false );
+        if ( this.isGameEnded() ) {
+            UserScore.setScore( this.levelNumber, this.option, this.score );
             return;
         } else {
             this.updateBalls();
@@ -192,6 +229,14 @@ export default class GameBoard {
             this.dispatchActions();
             this.updateAI();
         }
+    }
+    private updateScore(): void {
+        if ( this.option === PlayerTypes.defender ) {
+            this.score += 5;
+        } else if ( this.option === PlayerTypes.capture ) {
+            this.score -= 5;
+        }
+        this.statusBar.updateScore( this.score );
     }
     private applyReward( reward: RewardEnum, what: 'paddle'|'guy' ): void {
         if ( what === 'paddle' ) {
@@ -316,7 +361,8 @@ export default class GameBoard {
             let nxtPos: Vector = ball.getNextPosition();
             let hitBlockX: boolean;
             let hitBlockY: boolean;
-            let block: Block;
+            let block: Block|Guy;
+            let candidatPoint: Vector;
 
             // check if it side wall
             if ( nxtPos.x - radius < 0 || nxtPos.x + radius > this.size.width ) {
@@ -336,9 +382,10 @@ export default class GameBoard {
 
             // check if ball in front of x path
             nxtPos = ball.getNextPosition();
-            block = this.getBlock( { x: nxtPos.x, y: ball.point.y } );
+            candidatPoint = { x: nxtPos.x, y: ball.point.y };
+            block = this.getBlock( candidatPoint ) || this.getGuy( candidatPoint );
             if ( block ) {
-                this.score += 5;
+                this.updateScore();
                 hitBlockX = true;
                 ball.invertTraj( 'x' );
                 // TODO: different strength for balls
@@ -351,9 +398,10 @@ export default class GameBoard {
 
             // check if ball in front of y path
             nxtPos = ball.getNextPosition();
-            block = this.getBlock( { x: ball.point.x, y: nxtPos.y } );
+            candidatPoint = { x: ball.point.x, y: nxtPos.y };
+            block = this.getBlock( candidatPoint ) || this.getGuy( candidatPoint );
             if ( block ) {
-                this.score += 5;
+                this.updateScore();
                 hitBlockY = true;
                 ball.invertTraj( 'y' );
                 if (block.getHit( 1 ) === 0) {
@@ -364,7 +412,7 @@ export default class GameBoard {
             }
             // check if ball in front of xy path (corner hit)
             if ( !hitBlockX && !hitBlockY ) {
-                block = this.getBlock( nxtPos );
+                block = this.getBlock( nxtPos ) || this.getGuy( nxtPos );
                 if ( block ) {
                     ball.invertTraj( 'y' );
                     ball.invertTraj( 'x' );
@@ -377,7 +425,6 @@ export default class GameBoard {
             }
             nxtPos = ball.getNextPosition();
             ball.updateDOMPosition( nxtPos );
-            this.statusBar.updateScore( this.score );
         }, this);
         ballsToDelete.forEach( ( idx: number ) => {
             this.balls.splice( idx + offset, 1 );
@@ -405,6 +452,14 @@ export default class GameBoard {
                     case 39:
                         this.onKeyRight();
                         break;
+                    case 38:
+                    case 87:
+                        this.onKeyUp();
+                        break;
+                    case 40:
+                    case 83:
+                        this.onKeyDown();
+                        break;
                     case 32:
                         this.onSpaceBar();
                         break;
@@ -412,6 +467,16 @@ export default class GameBoard {
                 }
             }
         });
+    }
+    private onKeyUp(): void {
+        if ( this.player === this.guy ) {
+            this.player.moveUp();
+        }
+    }
+    private onKeyDown(): void {
+        if ( this.player === this.guy ) {
+            this.player.moveDown();
+        }
     }
     private onKeyLeft(): void {
         this.player.moveLeft();

@@ -13,7 +13,7 @@ function setScore( level: number, playerType: PlayerTypes, score: number): void 
         }));
     } else {
         let data = JSON.parse( raw );
-        if ( score > data[playerType] ) {
+        if ( !data[playerType] || score > data[playerType] ) {
             data[playerType] = score;
             localStorage.setItem( levelKey, JSON.stringify( data ) );
         }
