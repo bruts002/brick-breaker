@@ -26,7 +26,6 @@ export default class GameBoard {
     private rewards: Array<Reward>;
     private updateInterval: number;
     private balls: Array<Ball>;
-    private size: Size;
     private domElement: SVGElement;
     private renderedBlocks: Array<Block>;
     private ai: Paddle|Guy;
@@ -35,32 +34,23 @@ export default class GameBoard {
     private guy: Guy;
     private isPaused: boolean;
     private modal: Modal;
-    private levelSelector: LevelSelector;
     private levelEnded: boolean;
-    private levelNumber: number;
-    private mountNode: HTMLElement;
     private statusBar: StatusBar;
     private score: number;
-    private option: PlayerTypes;
 
     public constructor(
-        size: Size,
-        mountNode: HTMLElement,
-        levelSelector: LevelSelector,
-        levelNumber: number,
-        option: PlayerTypes
+        private size: Size,
+        private mountNode: HTMLElement,
+        private levelSelector: LevelSelector,
+        private levelNumber: number,
+        private option: PlayerTypes
     ) {
         this.activeKeys = new Map();
         this.modal = new Modal();
         this.balls = [];
         this.bullets = [];
         this.rewards = [];
-        this.size = size;
-        this.levelSelector = levelSelector;
         this.levelEnded = false;
-        this.levelNumber = levelNumber;
-        this.mountNode = mountNode;
-        this.option = option;
         if ( this.option === PlayerTypes.defender ) {
             this.score = 0;
         } else if ( this.option === PlayerTypes.capture ) {
@@ -243,13 +233,12 @@ export default class GameBoard {
         }
         this.statusBar.updateScore( this.score );
     }
-    private applyReward( reward: RewardEnum, what: 'paddle'|'guy' ): void {
-        if ( what === 'paddle' ) {
-            if ( this.option === PlayerTypes.defender ) {
-                this.statusBar.addReward( reward );
-            }
+    private applyReward( reward: RewardEnum, what: PlayerTypes ): void {
+        if ( what === this.option ) this.statusBar.addReward( reward );
+        if ( what === PlayerTypes.defender ) {
             this.paddle.applyReward( reward );
-        } else if ( what === 'guy' ) {
+        } else if ( what === PlayerTypes.capture ) {
+            this.guy.applyReward( reward );
         }
     }
     private updateRewards(): void {
@@ -264,7 +253,7 @@ export default class GameBoard {
                 toDelete.push( index );
                 reward.destroy();
             } else if ( isCollision( nxtPos, paddlePos, paddleSize ) ) {
-                this.applyReward( reward.rewardType, 'paddle' );
+                this.applyReward( reward.rewardType, PlayerTypes.defender );
                 toDelete.push( index );
                 reward.destroy();
             } else {

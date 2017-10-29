@@ -1,4 +1,4 @@
-import Reward from '../interfaces/Reward';
+import RewardEnum from '../interfaces/Reward';
 import Size from '../interfaces/Size';
 import Vector from '../interfaces/Vector';
 import PlayerConfig from '../interfaces/PlayerConfig';
@@ -50,7 +50,7 @@ export default class Guy extends Entity implements Controllable {
     }
 
     // TODO: implement functions below
-    public applyReward( reward: Reward ): void { }
+    public applyReward( reward: RewardEnum ): void { }
     public getHit( str: number ): number { return 1; }
     public setIndex( index: number ): void { this.index = index; }
     public useReward(): void { }
