@@ -3,36 +3,28 @@ import Size from '../interfaces/Size';
 import Vector from '../interfaces/Vector';
 import Entity from './Entity';
 import RewardEnum from '../interfaces/Reward';
+import PlayerConfig from '../interfaces/PlayerConfig';
 
 export default class Paddle extends Entity {
 
-    private boardSize: Size;
-    private emitBullet: Function;
     private rewardType: RewardEnum;
     public moveAmount: number;
 
-    constructor( boardSize: Size, mountNode: SVGElement, emitBullet: Function ) {
-        const paddlePoint = {
-            x: Paddle.getStartX( boardSize.width ),
-            y: Paddle.getStartY( boardSize.height )
-        };
-        super( paddlePoint,
-               Paddle.defaults.sizes.default,
-               { x: 0, y: 0 },
-               'rect',
-               mountNode,
-               Paddle.defaults.attributes );
-        this.emitBullet = emitBullet;
-        this.boardSize = boardSize;
+    constructor(
+        private boardSize: Size,
+        mountNode: SVGElement,
+        paddleConfig: PlayerConfig,
+        private emitBullet: Function
+    ) {
+        super(
+            paddleConfig.position,
+            paddleConfig.size,
+            { x: 0, y: 0 },
+            'rect',
+            mountNode,
+            paddleConfig.attributes || Paddle.defaults.attributes
+        );
         this.moveAmount = Paddle.defaults.moveAmount;
-    }
-
-    public static getStartX( boardSizeWidth: number ): number {
-        return ( ( boardSizeWidth - Paddle.defaults.sizes.default.width ) / 2 );
-    }
-
-    public static getStartY( boardSizeHeight: number ): number {
-        return ( boardSizeHeight - Paddle.defaults.sizes.default.height - 0.5 );
     }
 
     public static defaults = {

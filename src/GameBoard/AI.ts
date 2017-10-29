@@ -92,16 +92,16 @@ function movePaddleToEntity( paddle: Paddle, entities: Array<Entity>, size: Size
     }
 }
 
-function getNextMove( entity: Entity, dropPoint: Vector ): Entity {
-    const traj: Vector = entity.getTraj();
-    return new Entity (
-        dropPoint,
-        entity.getSize(),
-        { x:traj.x, y: traj.y * -1 },
-        'circle',
-        SVGElement.prototype
-    );
-}
+// function getNextMove( entity: Entity, dropPoint: Vector ): Entity {
+//     const traj: Vector = entity.getTraj();
+//     return new Entity (
+//         dropPoint,
+//         entity.getSize(),
+//         { x:traj.x, y: traj.y * -1 },
+//         'circle',
+//         SVGElement.prototype
+//     );
+// }
 
 function canAndShouldMoveLeft( candidate: Vector, current: Vector, paddle: Paddle): boolean {
     return isLeft( candidate, paddle ) &&

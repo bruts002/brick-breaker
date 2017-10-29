@@ -1,7 +1,9 @@
 import Vector from './Vector';
 
-export default interface BallConfig {
+interface BallConfig {
     point: Vector;
     radius: number;
     trajectory: Vector;
 }
+
+export default BallConfig;

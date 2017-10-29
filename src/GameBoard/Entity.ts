@@ -3,7 +3,7 @@ import Vector from '../interfaces/Vector';
 import Size from '../interfaces/Size';
 import Trajectory from './Trajectory';
 
-export default class Entity {
+export default abstract class Entity {
 
     public point: Vector;
     protected size: Size;

@@ -1,45 +1,52 @@
 import Reward from '../interfaces/Reward';
 import Size from '../interfaces/Size';
 import Vector from '../interfaces/Vector';
+import PlayerConfig from '../interfaces/PlayerConfig';
 import Entity from './Entity';
+
+// TODO: create an implementable class that Guy and Paddle implement
 
 export default class Guy extends Entity {
     private static defaults = {
-        moveAmount: 1
+        speed: 1,
+        attributes: {
+            'fill': 'gray',
+            'stroke': 'black',
+            'stroke-width': '0.5'
+        }
     }
 
-    private moveAmount: number;
+    private speed: number;
     public index: number;
 
-    constructor( mountNode: SVGElement ) {
+    constructor(
+        mountNode: SVGElement,
+        guyConfig: PlayerConfig
+    ) {
         super(
-            { x: 11, y: 17 },
-            { width: 3, height: 3 },
+            guyConfig.position,
+            guyConfig.size,            
             { x: 0, y: 0 },
             'rect',
             mountNode,
-            {
-                'fill': 'gray',
-                'stroke': 'black',
-                'stroke-width': '0.5'
-            }
+            guyConfig.attributes || Guy.defaults.attributes    
         );
-        this.moveAmount = Guy.defaults.moveAmount;
+        this.speed = guyConfig.speed || Guy.defaults.speed;
     }
     public moveLeft(): void {
-        this.point.x -= this.moveAmount;
+        this.point.x -= this.speed;
         this.updateDOMPosition();
     }
     public moveRight(): void {
-        this.point.x += this.moveAmount;
+        this.point.x += this.speed;
         this.updateDOMPosition();
     }
     public moveUp(): void {
-        this.point.y -= this.moveAmount;
+        this.point.y -= this.speed;
         this.updateDOMPosition();
     }
     public moveDown(): void {
-        this.point.y += this.moveAmount;
+        this.point.y += this.speed;
         this.updateDOMPosition();
     }
 

@@ -1,7 +1,17 @@
 import LevelI from '../../../interfaces/LevelI';
 import Reward from '../../../interfaces/Reward';
 
+// TODO: build a step in webpack build to move these into dist folder
+
 const Level: LevelI = {
+    paddle: {
+        size: { width: 9, height: 3 },
+        position: { x: 47, y: 49 }
+    },
+    guy: {
+        size: { width: 3, height: 3 },
+        position: { x: 11, y: 17 }
+    },
     size: {
         width: 100,
         height: 50

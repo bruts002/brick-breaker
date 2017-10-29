@@ -7,6 +7,7 @@ import BlockConfig from '../interfaces/BlockConfig';
 import Size from '../interfaces/Size';
 import LevelI from '../interfaces/LevelI';
 import PlayerTypes from '../interfaces/PlayerTypes';
+import PlayerConfig from '../interfaces/PlayerConfig';
 import AI from './AI';
 import Paddle from './Paddle';
 import Guy from './Guy';
@@ -89,18 +90,21 @@ export default class GameBoard {
         // build stuff
         this.renderedBlocks = this.renderBlocks( level.blocks );
         this.balls = this.renderBalls( level.balls );
-        this.buildPlayerAndAI();
+        this.buildPlayerAndAI( level.paddle, level.guy );
 
         document.body.addEventListener('keydown', this.globalKeyListener.bind( this ) );
         this.start();
     }
-    private buildPlayerAndAI(): void {
+    private buildPlayerAndAI( paddleConfig: PlayerConfig, guyConfig: PlayerConfig ): void {
+        this.paddle = this.buildPaddle( paddleConfig );
+        this.guy = this.buildGuy( guyConfig );
+
         if ( this.option === PlayerTypes.defender ) {
-            this.player = this.paddle = this.buildPaddle();
-            this.ai = this.guy = this.buildGuy();
+            this.player = this.paddle;
+            this.ai = this.guy;
         } else if ( this.option === PlayerTypes.capture ) {
-            this.player = this.guy = this.buildGuy();
-            this.ai = this.paddle = this.buildPaddle();
+            this.player = this.guy;
+            this.ai = this.paddle;
         }
     }
     private destroy(): void {
@@ -124,15 +128,16 @@ export default class GameBoard {
         document.body.addEventListener('keydown', this.keyUpDownHandler.bind( this ) );
         document.body.addEventListener('keyup', this.keyUpDownHandler.bind( this ) );
     }
-    private buildPaddle(): Paddle {
+    private buildPaddle( paddleConfig: PlayerConfig ): Paddle {
         return new Paddle(
             this.size,
             this.domElement,
+            paddleConfig,
             this.createBullet.bind( this )
         );
     }
-    private buildGuy(): Guy {
-        return new Guy( this.domElement );
+    private buildGuy( guyConfig: PlayerConfig ): Guy {
+        return new Guy( this.domElement, guyConfig );
     }
     private createBullet( start: Vector, size: Size ): void {
         this.bullets.push( new Bullet( start, size, this.domElement ) );
