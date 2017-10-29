@@ -3,10 +3,9 @@ import Size from '../interfaces/Size';
 import Vector from '../interfaces/Vector';
 import PlayerConfig from '../interfaces/PlayerConfig';
 import Entity from './Entity';
+import Controllable from '../interfaces/Controllable';
 
-// TODO: create an implementable class that Guy and Paddle implement
-
-export default class Guy extends Entity {
+export default class Guy extends Entity implements Controllable {
     private static defaults = {
         speed: 1,
         attributes: {

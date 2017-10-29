@@ -474,14 +474,10 @@ export default class GameBoard {
         });
     }
     private onKeyUp(): void {
-        if ( this.player === this.guy ) {
-            this.player.moveUp();
-        }
+        this.player.moveUp();
     }
     private onKeyDown(): void {
-        if ( this.player === this.guy ) {
-            this.player.moveDown();
-        }
+        this.player.moveDown();
     }
     private onKeyLeft(): void {
         this.player.moveLeft();

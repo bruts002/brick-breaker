@@ -4,8 +4,9 @@ import Vector from '../interfaces/Vector';
 import Entity from './Entity';
 import RewardEnum from '../interfaces/Reward';
 import PlayerConfig from '../interfaces/PlayerConfig';
+import Controllable from '../interfaces/Controllable';
 
-export default class Paddle extends Entity {
+export default class Paddle extends Entity implements Controllable {
 
     private rewardType: RewardEnum;
     public moveAmount: number;
@@ -135,4 +136,6 @@ export default class Paddle extends Entity {
     private makeDefault(): void {
         this.updateSize( Paddle.defaults.sizes.default );
     }
+    public moveUp(): void { }
+    public moveDown(): void { }
 }
