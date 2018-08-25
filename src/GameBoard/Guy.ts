@@ -15,7 +15,11 @@ export default class Guy extends Entity implements Controllable {
         }
     }
 
+    private static MAX_WIDTH: number = 5;
+    private static MAX_HEIGHT: number = 5;
+
     private speed: number;
+    private hitCount: number = 0;
     public index: number;
 
     constructor(
@@ -48,10 +52,25 @@ export default class Guy extends Entity implements Controllable {
         this.point.y += this.speed;
         this.updateDOMPosition();
     }
+    
+    private grow(): void {
+        if ( this.size.width >= Guy.MAX_WIDTH || this.size.height >= Guy.MAX_HEIGHT ) return;
+        this.size.width++;
+        this.size.height++;
+        this.updateSize();
+        return;
+    }
+
+    public getHit( str: number ): number {
+        this.hitCount++;
+        if ( this.hitCount % 10 ) {
+            this.grow();
+        }
+        return this.hitCount;
+    }
 
     // TODO: implement functions below
     public applyReward( reward: RewardEnum ): void { }
-    public getHit( str: number ): number { return 1; }
     public setIndex( index: number ): void { this.index = index; }
     public useReward(): void { }
 }

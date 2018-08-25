@@ -20,7 +20,7 @@ function makeMove( ai: Paddle|Guy, balls: Array<Ball>, rewards: Array<Reward>, s
     if ( ai instanceof Paddle ) {
         makePaddleMove( ai, balls, rewards, size );
     } else if ( ai instanceof Guy ) {
-        makeGuyMove( ai );
+        makeGuyMove( ai, balls, size );
     }
 }
 function likelyToFallFirst( a: Entity, b: Entity ): -1|0|1 {
@@ -148,7 +148,7 @@ function isLeft( point: Vector, paddle: Paddle ): boolean {
 function isRight( point: Vector, paddle: Paddle): boolean {
     return point.x >= paddle.point.x + paddle.getSize().width - 1;
 }
-function makeGuyMove( guy: Guy ): void {
+function makeGuyMove( guy: Guy, balls: Array<Ball>, size: Size ): void {
 
 }
 export default {

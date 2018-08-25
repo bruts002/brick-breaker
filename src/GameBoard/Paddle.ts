@@ -9,6 +9,7 @@ import Controllable from '../interfaces/Controllable';
 export default class Paddle extends Entity implements Controllable {
 
     private rewardType: RewardEnum;
+    private sheild: SVGCircleElement;
     public moveAmount: number;
 
     constructor(
@@ -25,6 +26,10 @@ export default class Paddle extends Entity implements Controllable {
             mountNode,
             paddleConfig.attributes || Paddle.defaults.attributes
         );
+        this.sheild = document.createElementNS( SVGNAMESPACE, 'circle' );
+        this.sheild.setAttribute('cx', String( paddleConfig.position.x + paddleConfig.size.width / 2 ) );
+        this.sheild.setAttribute('cy', String( paddleConfig.position.y ) );
+        this.sheild.style.opacity = '0.3';
         this.moveAmount = Paddle.defaults.moveAmount;
     }
 
@@ -95,6 +100,9 @@ export default class Paddle extends Entity implements Controllable {
             default:
             case 1: return '#3877FF';
         }
+    }
+    public activateSheld(): void {
+
     }
     public useReward(): void {
         switch (this.rewardType) {

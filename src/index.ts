@@ -9,10 +9,7 @@ export default class Main {
     private levelSelector: LevelSelector;
     private gameBoard: GameBoard;
 
-    private mountNode: HTMLElement;
-
-    constructor( mountNode: HTMLElement ) {
-        this.mountNode = mountNode;
+    constructor( private mountNode: HTMLElement ) {
         this.levelSelector = new LevelSelector( this.setLevel.bind(this) );
         this.levelSelector.show();
     }
