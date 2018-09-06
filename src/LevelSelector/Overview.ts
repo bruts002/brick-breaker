@@ -34,6 +34,9 @@ export default class Overview {
         this.startButton = domNode.querySelector( `#${Overview.ID.START}` );
         this.addEventListeners();
 
+        // Select 'defender' mode by default
+        this.setOption( PlayerTypes.defender );
+
         mountNode.appendChild( domNode );
     }
 
