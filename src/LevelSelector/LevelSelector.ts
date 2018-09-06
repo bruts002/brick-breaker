@@ -19,8 +19,8 @@ export default class LevelSelector {
         Loader.css( 'LevelSelector' );
         this.cb = cb;
         this.modal = new Modal( false );
-        this.levelThumbNails = new LevelThumbNails( this.modal.extensionPoint, this.levelSelect.bind( this ) );
         this.overview = new Overview( this.modal.extensionPoint, this.startLevel.bind( this ) );
+        this.levelThumbNails = new LevelThumbNails( this.modal.extensionPoint, this.levelSelect.bind( this ) );
     }
 
     private levelSelect( level: number ): void {

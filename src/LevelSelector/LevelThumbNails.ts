@@ -47,6 +47,12 @@ export default class LevelThumbNails {
             levelNode.innerHTML = LevelThumbNails.levelTemplate( thumbNailSrc, String( i ) );
             mountNode.appendChild( levelNode );
             prevLevelComplete = levelComplete;
+
+            if (i === 0) {
+                // Select first level // TODO: select highest unlocked level
+                this.levelSelectCB( i );
+                levelNode.id = 'selected';
+            }
         });
     }
 
