@@ -20,10 +20,10 @@ export default class LevelSelector {
         this.cb = cb;
         this.modal = new Modal( false );
         this.overview = new Overview( this.modal.extensionPoint, this.startLevel.bind( this ) );
-        this.levelThumbNails = new LevelThumbNails( this.modal.extensionPoint, this.levelSelect.bind( this ) );
+        this.levelThumbNails = new LevelThumbNails( this.modal.extensionPoint, this.updateOverview.bind( this ) );
     }
 
-    private levelSelect( level: number ): void {
+    private updateOverview( level: number ): void {
         const defenderScore: number = UserScore.getScore( level, PlayerTypes.defender );
         const captureScore: number = UserScore.getScore( level, PlayerTypes.capture );
         this.overview.update({
@@ -33,7 +33,8 @@ export default class LevelSelector {
         });
     }
 
-    public show( message?: string, success?: Boolean ): void {
+    public show( level: number, message?: string, success?: Boolean ): void {
+        this.updateOverview(level);
         message = message ? message + LevelSelector.defaultMessage : LevelSelector.defaultMessage;
         this.modal.show( message );
     }

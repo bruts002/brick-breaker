@@ -11,7 +11,7 @@ export default class Main {
 
     constructor( private mountNode: HTMLElement ) {
         this.levelSelector = new LevelSelector( this.setLevel.bind(this) );
-        this.levelSelector.show();
+        this.levelSelector.show(0);
     }
 
     private setLevel( level: LevelI, levelNumber: number, option: PlayerTypes ): void {
@@ -22,7 +22,7 @@ export default class Main {
             this.levelSelector,
             levelNumber,
             option
-         );
+        );
         this.gameBoard.init(level);
     }
 

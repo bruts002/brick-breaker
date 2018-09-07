@@ -174,10 +174,32 @@ export default class GameBoard {
                  return this.guy;
              }
     }
-    private endGame( message: string, success: boolean ): void {
+    private endGame(): void {
+        UserScore.setScore( this.levelNumber, this.option, this.score );
+
+        let msg: string;
+        let success: boolean;
+
+        if ( this.option === PlayerTypes.defender ) {
+            if ( this.renderedBlocks.length === 0 ) {
+                msg = 'Level Complete!';
+                success = true;
+            } else if ( this.balls.length === 0 ) {
+                msg = 'Level Failed!';
+                success = false;
+            }
+        } else if ( this.option === PlayerTypes.capture ) {
+            if ( this.renderedBlocks.length === 0 ) {
+                msg = 'Level Failed!';
+                success = false;
+            } else if ( this.balls.length === 0 ) {
+                msg = 'Level Complete!';
+                success = true;
+            }
+        }
         clearInterval( this.updateInterval );
         this.levelEnded = true;
-        this.levelSelector.show( message, success );
+        this.levelSelector.show( this.levelNumber, msg, success );
         this.destroy();
     }
     private stop(): void {
@@ -186,36 +208,11 @@ export default class GameBoard {
         clearInterval( this.updateInterval );
     }
     private isGameEnded(): boolean {
-        let msg: string;
-        let done: boolean = false;
-        let success: boolean;
-        if ( this.option === PlayerTypes.defender ) {
-            if ( this.renderedBlocks.length === 0 ) {
-                msg = 'Level Complete!';
-                success = true;
-                done = true;
-            } else if ( this.balls.length === 0 ) {
-                msg = 'Level Failed!';
-                success = false;
-                done = true;
-            }
-        } else if ( this.option === PlayerTypes.capture ) {
-            if ( this.renderedBlocks.length === 0 ) {
-                msg = 'Level Failed!';
-                success = false;
-                done = true;
-            } else if ( this.balls.length === 0 ) {
-                msg = 'Level Complete!';
-                success = true;
-                done = true;
-            }
-        }
-        if ( done ) this.endGame( msg, success );
-        return done;
+        return this.renderedBlocks.length === 0 || this.balls.length === 0;
     }
     private update(): void {
         if ( this.isGameEnded() ) {
-            UserScore.setScore( this.levelNumber, this.option, this.score );
+            this.endGame();
             return;
         } else {
             this.updateBalls();
