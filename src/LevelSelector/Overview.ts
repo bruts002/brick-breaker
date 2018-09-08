@@ -1,13 +1,12 @@
 import PlayerTypes from '../interfaces/PlayerTypes';
 
 interface Details {
-    level: string;
+    level: number;
     defender: number;
     capture: number;
 }
 
 export default class Overview {
-    private startLevel: Function;
 
     private levelNumber: HTMLHeadingElement;
     private defenderHighScore: Element;
@@ -20,24 +19,37 @@ export default class Overview {
     private level: number;
     private option: PlayerTypes;
 
-    constructor( mountNode: HTMLElement, startLevel: Function ) {
-        this.startLevel = startLevel;
+    constructor(
+        mountNode: HTMLElement,
+        private startLevel: Function
+    ) {
 
-        const domNode: Element = document.createElement('div');
-        domNode.classList.add( 'level-overview' );
-        domNode.innerHTML = Overview.template;
-        this.levelNumber = domNode.getElementsByTagName( 'h3' )[0];
-        this.defenderHighScore = domNode.querySelector( `#${Overview.ID.DEFENDER}-highscore` );
-        this.captureHighScore = domNode.querySelector( `#${Overview.ID.CAPTURE}-highscore` );
-        this.defenderOption = domNode.getElementsByClassName( `${Overview.ID.DEFENDER}-option` )[0];
-        this.captureOption = domNode.getElementsByClassName( `${Overview.ID.CAPTURE}-option` )[0];
-        this.startButton = domNode.querySelector( `#${Overview.ID.START}` );
+        const domNode: HTMLDivElement = this.buildDOMNode();
         this.addEventListeners();
 
         // Select 'defender' mode by default
         this.setOption( PlayerTypes.defender );
 
         mountNode.appendChild( domNode );
+    }
+
+    private buildDOMNode(): HTMLDivElement {
+        const {
+            DEFENDER,
+            CAPTURE,
+            START
+        } = Overview.ID;
+
+        const domNode: HTMLDivElement = document.createElement('div');
+        domNode.classList.add( 'level-overview' );
+        domNode.innerHTML = Overview.template;
+        this.levelNumber = domNode.getElementsByTagName( 'h3' )[0];
+        this.defenderHighScore = domNode.querySelector( `#${DEFENDER}-highscore` );
+        this.captureHighScore = domNode.querySelector( `#${CAPTURE}-highscore` );
+        this.defenderOption = domNode.getElementsByClassName( `${DEFENDER}-option` )[0];
+        this.captureOption = domNode.getElementsByClassName( `${CAPTURE}-option` )[0];
+        this.startButton = domNode.querySelector( `#${START}` );
+        return domNode;
     }
 
     private static ID = {
@@ -82,10 +94,14 @@ export default class Overview {
         this.option = option;
     }
 
-    public update( details: Details ): void {
-        this.level = +details.level;
-        this.levelNumber.innerHTML = `Level: ${details.level}`;
-        this.defenderHighScore.innerHTML = `Highscore: ${details.defender}`;
-        this.captureHighScore.innerHTML = `Highscore: ${details.capture}`;
+    public update({
+        level,
+        defender,
+        capture
+    }: Details): void {
+        this.level = +level;
+        this.levelNumber.innerHTML = `Level: ${level}`;
+        this.defenderHighScore.innerHTML = `Highscore: ${defender}`;
+        this.captureHighScore.innerHTML = `Highscore: ${capture}`;
     }
 }

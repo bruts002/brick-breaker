@@ -24,12 +24,12 @@ export default class LevelSelector {
     }
 
     private updateOverview( level: number ): void {
-        const defenderScore: number = UserScore.getScore( level, PlayerTypes.defender );
-        const captureScore: number = UserScore.getScore( level, PlayerTypes.capture );
+        const defender: number = UserScore.getScore( level, PlayerTypes.defender );
+        const capture: number = UserScore.getScore( level, PlayerTypes.capture );
         this.overview.update({
-            level: String( level ),
-            defender: defenderScore,
-            capture: captureScore
+            level,
+            defender,
+            capture
         });
     }
 
