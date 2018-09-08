@@ -1,9 +1,9 @@
-import Modal from '../Modal';
+import Modal from 'biblioteca/Modal';
 import UserScore from '../UserScore/UserScore';
 import LevelThumbNails from './LevelThumbNails';
 import Overview from './Overview';
 import PlayerTypes from '../interfaces/PlayerTypes';
-import Loader from '../Loader';
+import Loader from 'util/Loader';
 
 
 export default class LevelSelector {

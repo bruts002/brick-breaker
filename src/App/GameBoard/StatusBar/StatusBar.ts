@@ -1,5 +1,5 @@
 import RewardEnum from '../../interfaces/Reward';
-import Loader from '../../Loader';
+import Loader from 'util/Loader';
 
 export default class StatusBar {
     private mountNode: HTMLElement;

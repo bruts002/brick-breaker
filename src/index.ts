@@ -1,8 +1,8 @@
-import GameBoard from './GameBoard/GameBoard';
-import Size from './interfaces/Size';
-import LevelI from './interfaces/LevelI';
-import PlayerTypes from './interfaces/PlayerTypes';
-import LevelSelector from './LevelSelector/LevelSelector';
+import GameBoard from 'App/GameBoard/GameBoard';
+
+import LevelI from 'App/interfaces/LevelI';
+import PlayerTypes from 'App/interfaces/PlayerTypes';
+import LevelSelector from 'App/LevelSelector/LevelSelector';
 
 export default class Main {
 

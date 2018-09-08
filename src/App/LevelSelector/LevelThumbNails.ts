@@ -1,6 +1,6 @@
 import UserScore from '../UserScore/UserScore';
 import AllLevels from './levels/AllLevels';
-import Loader from '../Loader';
+import Loader from 'util/Loader';
 
 export default class LevelThumbNails {
 

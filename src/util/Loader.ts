@@ -1,4 +1,4 @@
-import LevelI from './interfaces/LevelI';
+import LevelI from 'App/interfaces/LevelI';
 
 export default class Load {
 

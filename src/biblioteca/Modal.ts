@@ -1,4 +1,4 @@
-import Loader from './Loader';
+import Loader from 'util/Loader';
 
 export default class Modal {
     private mdl: HTMLDivElement;

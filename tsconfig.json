@@ -10,7 +10,13 @@
       "dom"
     ],
     "noImplicitAny": true,
-    "suppressImplicitAnyIndexErrors": true
+    "suppressImplicitAnyIndexErrors": true,
+    "baseUrl": "./src/",
+    "paths": { 
+      "App/*": [ "App/*" ],
+      "util/*": [ "util/*" ],
+      "biblioteca/*": [ "biblioteca/*" ]
+  }
   },
   "exclude": [
     "node_modules",

@@ -5,6 +5,8 @@ const DashboardPlugin = require("webpack-dashboard/plugin");
 const nodeEnv = process.env.NODE_ENV || "development";
 const isProd = nodeEnv === "production";
 
+const srcPath = subdir => path.join(__dirname, "src", subdir)
+
 var config = {
   devtool: isProd ? "hidden-source-map" : "source-map",
   context: path.resolve("./src"),
@@ -37,7 +39,12 @@ var config = {
     ]
   },
   resolve: {
-    extensions: [".ts", ".js"]
+    extensions: [".ts", ".js"],
+    alias: {
+      App: srcPath('App'),
+      util: srcPath('util'),
+      biblioteca: srcPath('biblioteca')
+    }
   },
   plugins: [
     new webpack.DefinePlugin({
