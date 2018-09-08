@@ -3,13 +3,12 @@ import AllLevels from './levels/AllLevels';
 import Loader from '../Loader';
 
 export default class LevelThumbNails {
-    private mountNode: HTMLElement;
-    private levelSelectCB: Function;
 
-    constructor( mountNode: HTMLElement, levelSelectCB: Function ) {
+    constructor(
+        private mountNode: HTMLElement,
+        private levelSelectCB: Function
+    ) {
         Loader.css( 'LevelThumbNail' );
-        this.mountNode = mountNode;
-        this.levelSelectCB = levelSelectCB;
 
         const domNode: HTMLDivElement = document.createElement( 'div' );
         domNode.classList.add( 'level-thumbnails' );
