@@ -15,8 +15,11 @@
     "paths": { 
       "App/*": [ "App/*" ],
       "util/*": [ "util/*" ],
-      "biblioteca/*": [ "biblioteca/*" ]
-  }
+      "biblioteca/*": [ "biblioteca/*" ],
+      "micro/*": [ "micro/*" ]
+    },
+    "jsx": "react",
+    "jsxFactory": "micro.h"
   },
   "exclude": [
     "node_modules",

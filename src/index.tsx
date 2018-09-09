@@ -1,3 +1,4 @@
+import micro from 'micro';
 import GameBoard from 'App/GameBoard/GameBoard';
 
 import LevelI from 'App/interfaces/LevelI';
@@ -33,6 +34,13 @@ export default class Main {
     }
 }
 
-const start = new Main(
-    document.getElementById('gameBoard')
-);
+const mountNode: HTMLElement = document.getElementById('gameBoard');
+
+const start = () => new Main( mountNode );
+
+const xstart = () => micro.render(
+    <h1 className='michael'>Hello World</h1>,
+    mountNode
+)
+
+start();

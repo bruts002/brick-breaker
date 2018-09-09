@@ -11,7 +11,7 @@ var config = {
   devtool: isProd ? "hidden-source-map" : "source-map",
   context: path.resolve("./src"),
   entry: {
-    app: "./index.ts",
+    app: "./index.tsx",
     vendor: "./vendor.ts"
   },
   output: {
@@ -26,7 +26,7 @@ var config = {
     rules: [
       {
         enforce: "pre",
-        test: /\.ts?$/,
+        test: /\.tsx?$/,
         exclude: ["node_modules"],
         use: ["awesome-typescript-loader", "source-map-loader"]
       },
@@ -39,11 +39,12 @@ var config = {
     ]
   },
   resolve: {
-    extensions: [".ts", ".js"],
+    extensions: [".ts", ".tsx", ".js"],
     alias: {
       App: srcPath('App'),
       util: srcPath('util'),
-      biblioteca: srcPath('biblioteca')
+      biblioteca: srcPath('biblioteca'),
+      micro: srcPath('micro')
     }
   },
   plugins: [
