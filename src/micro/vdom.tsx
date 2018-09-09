@@ -71,6 +71,8 @@ export const updateElement: Function = (
       $parent.childNodes[index]
     );
   } else if (typeof newNode === 'object' && typeof oldNode === 'object') {
+    newNode.props = newNode.props || {};
+    oldNode.props = oldNode.props || {};
     updateProps(
       $parent.childNodes[index],
       newNode.props,
