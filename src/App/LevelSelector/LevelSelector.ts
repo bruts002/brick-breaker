@@ -23,13 +23,13 @@ export default class LevelSelector {
         this.levelThumbNails = new LevelThumbNails( this.modal.extensionPoint, this.updateOverview.bind( this ) );
     }
 
-    private updateOverview( level: number ): void {
-        const defender: number = UserScore.getScore( level, PlayerTypes.defender );
-        const capture: number = UserScore.getScore( level, PlayerTypes.capture );
-        this.overview.update({
-            level,
-            defender,
-            capture
+    private updateOverview( levelNumber: number ): void {
+        const defenderScore: number = UserScore.getScore( levelNumber, PlayerTypes.defender );
+        const captureScore: number = UserScore.getScore( levelNumber, PlayerTypes.capture );
+        this.overview.updateProps({
+            levelNumber,
+            defenderScore,
+            captureScore
         });
     }
 

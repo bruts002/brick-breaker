@@ -23,6 +23,7 @@ const render: Function = (
 
 const micro = {
   render,
+  updateElement,
   h,
   Fragment
 }

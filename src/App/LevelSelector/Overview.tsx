@@ -1,3 +1,4 @@
+import micro from 'micro';
 import PlayerTypes from '../interfaces/PlayerTypes';
 
 interface Details {
@@ -6,102 +7,126 @@ interface Details {
     capture: number;
 }
 
+interface Props {
+    levelNumber: string,
+    defenderScore: string,
+    captureScore: string,
+    onStart: Function
+}
+
+interface State {
+    selectedOption: PlayerTypes
+}
+
 export default class Overview {
 
-    private levelNumber: HTMLHeadingElement;
-    private defenderHighScore: Element;
-    private captureHighScore: Element;
-
-    private captureOption: Element;
-    private defenderOption: Element;
-    private startButton: Element;
-
-    private level: number;
-    private option: PlayerTypes;
+    private state: State;
+    private props: Props;
+    private prevRender: JSX.IntrinsicElements;
 
     constructor(
-        mountNode: HTMLElement,
+        private extensionPoint: HTMLElement,
         private startLevel: Function
     ) {
 
-        const domNode: HTMLDivElement = this.buildDOMNode();
-        this.addEventListeners();
+        this.state = {
+            selectedOption: PlayerTypes.defender,
+        };
 
-        // Select 'defender' mode by default
-        this.setOption( PlayerTypes.defender );
-
-        mountNode.appendChild( domNode );
-    }
-
-    private buildDOMNode(): HTMLDivElement {
-        const {
-            DEFENDER,
-            CAPTURE,
-            START
-        } = Overview.ID;
-
-        const domNode: HTMLDivElement = document.createElement('div');
-        domNode.classList.add( 'level-overview' );
-        domNode.innerHTML = Overview.template;
-        this.levelNumber = domNode.getElementsByTagName( 'h3' )[0];
-        this.defenderHighScore = domNode.querySelector( `#${DEFENDER}-highscore` );
-        this.captureHighScore = domNode.querySelector( `#${CAPTURE}-highscore` );
-        this.defenderOption = domNode.getElementsByClassName( `${DEFENDER}-option` )[0];
-        this.captureOption = domNode.getElementsByClassName( `${CAPTURE}-option` )[0];
-        this.startButton = domNode.querySelector( `#${START}` );
-        return domNode;
-    }
-
-    private static ID = {
-        DEFENDER: 'defender',
-        CAPTURE: 'capture',
-        START: 'start'
-    };
-
-    private static template =  `
-        <h3>Level</h3>
-        <div class='character-selector'>
-            <div class='option ${Overview.ID.DEFENDER}-option'>
-                <h5>Defender</h5>
-                <h5 id='${Overview.ID.DEFENDER}-highscore'>Highscore:</h5>
-            </div>
-            <div class='option ${Overview.ID.CAPTURE}-option'>
-                <h5>Capture the Flag</h5>
-                <h5 id='${Overview.ID.CAPTURE}-highscore'>Highscore:</h5>
-            </div>
-        </div>
-        <button id='${Overview.ID.START}'>START</button>
-    `;
-
-    private addEventListeners(): void {
-        this.defenderOption.addEventListener(
-            'click',
-            () => this.setOption( PlayerTypes.defender ) );
-        this.captureOption.addEventListener(
-            'click',
-            () => this.setOption( PlayerTypes.capture ) );
-        this.startButton.addEventListener( 'click', () => this.startLevel( this.level, this.option ) );
-    }
-
-    private setOption( option: PlayerTypes ) {
-        if ( option === PlayerTypes.defender ) {
-            this.defenderOption.classList.add( 'selected' );
-            this.captureOption.classList.remove( 'selected' );
-        } else if ( option === PlayerTypes.capture ) {
-            this.defenderOption.classList.remove( 'selected' );
-            this.captureOption.classList.add( 'selected' );
+        this.props = {
+            levelNumber: String ( 0 ),
+            defenderScore: 'def',
+            captureScore: 'cap',
+            onStart: this.callStartLevel
         }
-        this.option = option;
+
+        this.mountComponent();
     }
 
-    public update({
-        level,
-        defender,
-        capture
-    }: Details): void {
-        this.level = +level;
-        this.levelNumber.innerHTML = `Level: ${level}`;
-        this.defenderHighScore.innerHTML = `Highscore: ${defender}`;
-        this.captureHighScore.innerHTML = `Highscore: ${capture}`;
+    private mountComponent(): void {
+        this.prevRender = this.render();
+        micro.render(
+            this.prevRender,
+            this.extensionPoint
+        );
+    }
+
+    private updateComponent(): void {
+        const newRender = this.render();
+        micro.updateElement(
+            this.extensionPoint,
+            newRender,
+            this.prevRender
+        );
+        this.prevRender = newRender
+    }
+
+    private render() {
+        const {
+            levelNumber,
+            defenderScore,
+            captureScore,
+            onStart
+        } = this.props;
+        const { selectedOption } = this.state;
+        const {
+            defender,
+            capture,
+        } = PlayerTypes
+        return (
+            <div className='level-overview'>
+                <h3>{`Level ${levelNumber}`}</h3>
+                <div className='character-selector'>
+                    <div
+                        onClick={this.setOptionDefender}
+                        className={`option ${selectedOption === defender ? 'selected' : ''}`}>
+                        <h5>Defender</h5>
+                        <h5>{`Highscore: ${defenderScore}`}</h5>
+                    </div>
+                    <div
+                        onClick={this.setOptionCapture}
+                        className={`option ${selectedOption === capture ? 'selected' : ''}`}>
+                        <h5>Capture the Flag</h5>
+                        <h5>{`Highscore: ${captureScore}`}</h5>
+                    </div>
+                </div>
+                <button onClick={onStart}>START</button>
+            </div>
+        )
+    }
+
+    private callStartLevel = (): void => {
+        this.startLevel(
+            this.props.levelNumber,
+            this.state.selectedOption
+        );
+    }
+
+    private setState(newState: any) {
+        this.state = {
+            ...this.state,
+            ...newState
+        };
+        this.updateComponent();
+    }
+
+    private setOptionDefender = (): void  => {
+        this.setState({
+            selectedOption: PlayerTypes.defender
+        })
+    }
+
+    private setOptionCapture = (): void => {
+        this.setState({
+            selectedOption: PlayerTypes.capture
+        })
+    }
+
+    public updateProps(props: any): void {
+        this.props = {
+            ...this.props,
+            ...props
+        }
+        this.updateComponent();
     }
 }
