@@ -185,8 +185,9 @@ const extractEventName = (name: string): string => name.slice(2).toLowerCase();
 
 const addEventListeners = (
   $target: HTMLElement,
-  props: any
+  props: any = {}
 ): void => {
+  props = props || {}
   Object.keys(props).forEach(name => {
     if (isEventProp(name)) {
       $target.addEventListener(
