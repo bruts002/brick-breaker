@@ -1,4 +1,4 @@
-import micro from 'micro';
+import micro, { Component } from 'micro';
 import PlayerTypes from '../interfaces/PlayerTypes';
 
 interface Details {
@@ -8,26 +8,23 @@ interface Details {
 }
 
 interface Props {
-    levelNumber: string,
-    defenderScore: string,
-    captureScore: string,
-    onStart: Function
+    levelNumber?: string,
+    defenderScore?: string,
+    captureScore?: string,
+    startLevel?: Function
 }
 
 interface State {
     selectedOption: PlayerTypes
 }
 
-export default class Overview {
-
-    private state: State;
-    private props: Props;
-    private prevRender: JSX.IntrinsicElements;
+export default class Overview extends Component<State, Props> {
 
     constructor(
-        private extensionPoint: HTMLElement,
-        private startLevel: Function
+        extensionPoint: HTMLElement,
+        props: Props
     ) {
+        super(extensionPoint, props);
 
         this.state = {
             selectedOption: PlayerTypes.defender,
@@ -37,36 +34,19 @@ export default class Overview {
             levelNumber: String ( 0 ),
             defenderScore: 'def',
             captureScore: 'cap',
-            onStart: this.callStartLevel
+            startLevel: this.callStartLevel
         }
 
         this.mountComponent();
     }
 
-    private mountComponent(): void {
-        this.prevRender = this.render();
-        micro.render(
-            this.prevRender,
-            this.extensionPoint
-        );
-    }
 
-    private updateComponent(): void {
-        const newRender = this.render();
-        micro.updateElement(
-            this.extensionPoint,
-            newRender,
-            this.prevRender
-        );
-        this.prevRender = newRender
-    }
-
-    private render() {
+    protected render() {
         const {
             levelNumber,
             defenderScore,
             captureScore,
-            onStart
+            startLevel
         } = this.props;
         const { selectedOption } = this.state;
         const {
@@ -90,24 +70,16 @@ export default class Overview {
                         <h5>{`Highscore: ${captureScore}`}</h5>
                     </div>
                 </div>
-                <button onClick={onStart}>START</button>
+                <button onClick={startLevel}>START</button>
             </div>
         )
     }
 
     private callStartLevel = (): void => {
-        this.startLevel(
+        this.props.startLevel(
             this.props.levelNumber,
             this.state.selectedOption
         );
-    }
-
-    private setState(newState: any) {
-        this.state = {
-            ...this.state,
-            ...newState
-        };
-        this.updateComponent();
     }
 
     private setOptionDefender = (): void  => {
@@ -120,13 +92,5 @@ export default class Overview {
         this.setState({
             selectedOption: PlayerTypes.capture
         })
-    }
-
-    public updateProps(props: any): void {
-        this.props = {
-            ...this.props,
-            ...props
-        }
-        this.updateComponent();
     }
 }

@@ -19,7 +19,12 @@ export default class LevelSelector {
         Loader.css( 'LevelSelector' );
         this.cb = cb;
         this.modal = new Modal( false );
-        this.overview = new Overview( this.modal.extensionPoint, this.startLevel.bind( this ) );
+        this.overview = new Overview(
+            this.modal.extensionPoint,
+            {
+                startLevel: this.startLevel.bind( this )
+            }
+        );
         this.levelThumbNails = new LevelThumbNails( this.modal.extensionPoint, this.updateOverview.bind( this ) );
     }
 

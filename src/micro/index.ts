@@ -1,4 +1,5 @@
 import { h, updateElement } from './vdom';
+import Component from './Component';
 
 declare global {
   namespace JSX {
@@ -25,7 +26,9 @@ const micro = {
   render,
   updateElement,
   h,
-  Fragment
+  Fragment,
+  Component
 }
 
-export default micro
+export { Component };
+export default micro;
