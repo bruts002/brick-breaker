@@ -1,3 +1,5 @@
+import micro from 'micro';
+
 import Modal from 'biblioteca/Modal';
 import UserScore from '../UserScore/UserScore';
 import LevelThumbNails from './LevelThumbNails';
@@ -19,12 +21,24 @@ export default class LevelSelector {
         Loader.css( 'LevelSelector' );
         this.cb = cb;
         this.modal = new Modal( false );
-        this.overview = new Overview(
-            this.modal.extensionPoint,
-            {
-                startLevel: this.startLevel.bind( this )
-            }
-        );
+        // this.overview = new Overview(
+        //     this.modal.extensionPoint,
+        //     {
+        //         startLevel: this.startLevel.bind( this )
+        //     }
+        // );
+        const levelNumber: number = 0; // TODO: get highest unlocked level
+        const defenderScore: number = UserScore.getScore( levelNumber, PlayerTypes.defender );
+        const captureScore: number = UserScore.getScore( levelNumber, PlayerTypes.capture );
+        micro.render(
+            <Overview
+                levelNumber={levelNumber}
+                defenderScore={defenderScore}
+                captureScore={captureScore}
+                startLevel={this.startLevel.bind( this )}
+            />,
+            this.modal.extensionPoint
+        )
         this.levelThumbNails = new LevelThumbNails( this.modal.extensionPoint, this.updateOverview.bind( this ) );
     }
 

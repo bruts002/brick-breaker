@@ -16,7 +16,7 @@ const Fragment: Function = () => {
 }
 
 const render: Function = (
-  newNode: HTMLElement|Text,
+  newNode: JSX.IntrinsicElements|HTMLElement|Text,
   mountNode: HTMLElement
 ) : void => {
   updateElement(mountNode, newNode)

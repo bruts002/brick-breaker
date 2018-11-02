@@ -2,7 +2,7 @@
 // https://medium.com/@deathmood/write-your-virtual-dom-2-props-events-a957608f5c76
 
 interface JSXType {
-  type: HTMLElementTagNameMap,
+  type: HTMLElementTagNameMap|Function,
   props: any,
   children: JSXType[]
 }
@@ -21,13 +21,31 @@ export const createElement: Function = (node: JSXType|string): HTMLElement|Text 
   if (typeof node === 'string') {
     return document.createTextNode(node);
   }
+  let res;
+  if (typeof node.type === 'function') {
+    res = createCustomElement(node);
+  } else {
+    res = createNativeElement(node);
+  }
+  return res;
+}
+
+const createNativeElement = (node: JSXType):HTMLElement => {
   const $el: HTMLElement = document.createElement( String(node.type) );
   setProps($el, node.props);
   addEventListeners($el, node.props);
   node.children
     .map( (child: JSXType) => createElement(child))
     .forEach($el.appendChild.bind($el));
+
   return $el;
+}
+
+const createCustomElement = (node: any) : HTMLElement => {
+  const clz: any = new node.type(node.props);
+  console.log(clz);
+  const rnd = clz.render();
+  return rnd;
 }
 
 const changed: Function = (

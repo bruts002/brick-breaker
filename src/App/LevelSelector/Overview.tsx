@@ -1,12 +1,6 @@
 import micro, { Component } from 'micro';
 import PlayerTypes from '../interfaces/PlayerTypes';
 
-interface Details {
-    level: number;
-    defender: number;
-    capture: number;
-}
-
 interface Props {
     levelNumber?: string,
     defenderScore?: string,
@@ -20,33 +14,19 @@ interface State {
 
 export default class Overview extends Component<State, Props> {
 
-    constructor(
-        extensionPoint: HTMLElement,
-        props: Props
-    ) {
-        super(extensionPoint, props);
+    constructor( props: Props ) {
+        super(props);
 
         this.state = {
             selectedOption: PlayerTypes.defender,
         };
-
-        this.props = {
-            levelNumber: String ( 0 ),
-            defenderScore: 'def',
-            captureScore: 'cap',
-            startLevel: this.callStartLevel
-        }
-
-        this.mountComponent();
     }
 
-
-    protected render() {
+    public render() {
         const {
             levelNumber,
             defenderScore,
             captureScore,
-            startLevel
         } = this.props;
         const { selectedOption } = this.state;
         const {
@@ -70,7 +50,7 @@ export default class Overview extends Component<State, Props> {
                         <h5>{`Highscore: ${captureScore}`}</h5>
                     </div>
                 </div>
-                <button onClick={startLevel}>START</button>
+                <button onClick={this.callStartLevel}>START</button>
             </div>
         )
     }

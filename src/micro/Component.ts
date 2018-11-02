@@ -3,12 +3,13 @@ import micro from 'micro'
 export default abstract class Component<State, Props> {
   protected state: State;
   protected prevRender: JSX.IntrinsicElements;
+  private extensionPoint: HTMLElement;
 
-  constructor(
-    private extensionPoint: HTMLElement,
-    protected props: Props,
-  ) {
+  constructor( protected props: Props ) {
+  }
 
+  public __setExtensionPoint(extensionPoint: HTMLElement) {
+    this.extensionPoint = extensionPoint;
   }
 
   protected mountComponent(): void {
@@ -45,6 +46,6 @@ export default abstract class Component<State, Props> {
       this.updateComponent();
   }
 
-  protected abstract render(): JSX.IntrinsicElements;
+  public abstract render(): JSX.IntrinsicElements;
 
 }
