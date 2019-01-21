@@ -1,33 +1,31 @@
 const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const DashboardPlugin = require("webpack-dashboard/plugin");
-const nodeEnv = process.env.NODE_ENV || "development";
-const isProd = nodeEnv === "production";
+const mode = process.env.NODE_ENV || "development";
+const isProd = mode === "production";
+const paths = require('./config/paths')
 
 const srcPath = subdir => path.join(__dirname, "src", subdir)
 
-var config = {
+const config = {
+  mode,
   devtool: isProd ? "hidden-source-map" : "source-map",
   context: path.resolve("./src"),
   entry: {
-    app: "./index.tsx",
-    vendor: "./vendor.ts"
+    app: "./index.tsx"
   },
   output: {
-    path: path.resolve("./dist"),
+    path: paths.appBuild,
     filename: "[name].bundle.js",
     sourceMapFilename: "[name].bundle.map",
-    devtoolModuleFilenameTemplate: function (info) {
-        return "file:///" + info.absoluteResourcePath;
-    }
+    devtoolModuleFilenameTemplate: info => `file:///${info.absoluteResourcePath}`
   },
   module: {
     rules: [
       {
         enforce: "pre",
         test: /\.tsx?$/,
-        exclude: ["node_modules"],
+        exclude: [/node_modules/],
         use: ["awesome-typescript-loader", "source-map-loader"]
       },
       { test: /\.html$/, loader: "html-loader" },
@@ -35,6 +33,15 @@ var config = {
       {
           test: /\.(eot|svg|ttf|woff|woff2)$/,
           loader: 'file?name=public/fonts/[name].[ext]'
+      },
+      {
+        test: /\.(png|svg|jpg|gif)$/,
+        use: [{
+          loader: 'url-loader',
+          options: {
+            limit: 8192
+          }
+        }]
       }
     ]
   },
@@ -50,25 +57,14 @@ var config = {
   plugins: [
     new webpack.DefinePlugin({
       "process.env": {
-        // eslint-disable-line quote-props
-        NODE_ENV: JSON.stringify(nodeEnv)
+        NODE_ENV: JSON.stringify(mode)
       }
     }),
     new HtmlWebpackPlugin({
-      title: "Typescript Webpack Starter",
-      template: "!!ejs-loader!src/index.html"
+      title: "Brick Breaker | Capture the Flag",
+      description: "Brick Breaker JavaScript game",
+      template: "!!ejs-loader!static/index.html"
     }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: "vendor",
-      minChunks: Infinity,
-      filename: "vendor.bundle.js"
-    }),
-    new webpack.optimize.UglifyJsPlugin({
-      compress: { warnings: false },
-      output: { comments: false },
-      sourceMap: true
-    }),
-    new DashboardPlugin(),
     new webpack.LoaderOptionsPlugin({
       options: {
         tslint: {
@@ -79,10 +75,9 @@ var config = {
     })
   ],
   devServer: {
-    contentBase: path.join(__dirname, "dist/"),
     compress: true,
     port: 3002,
-    hot: true
+    // hot: true
   }
 };
 

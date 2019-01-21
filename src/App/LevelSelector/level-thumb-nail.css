@@ -23,8 +23,15 @@
     background: thistle;
     cursor: not-allowed;
 }
+.level-node.locked img {
+    background-image: url('./images/locked.png')
+}
+.level-node.complete img {
+    background-image: url('./images/completed.png')
+}
 .level-node img {
     border: 2px solid black;
+    background-size: contain;
 }
 .level-node p {
     margin: 5px 0;

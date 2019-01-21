@@ -4,6 +4,7 @@ import LevelThumbNails from './LevelThumbNails';
 import Overview from './Overview';
 import PlayerTypes from '../interfaces/PlayerTypes';
 import Loader from 'util/Loader';
+import './level-selector.css';
 
 
 export default class LevelSelector {
@@ -16,7 +17,6 @@ export default class LevelSelector {
     private static defaultMessage: string = 'Choose a level';
 
     constructor( cb: Function ) {
-        Loader.css( 'LevelSelector' );
         this.cb = cb;
         this.modal = new Modal( false );
         this.overview = new Overview(

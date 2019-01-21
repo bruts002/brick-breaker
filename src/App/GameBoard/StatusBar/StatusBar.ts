@@ -1,5 +1,5 @@
 import RewardEnum from '../../interfaces/Reward';
-import Loader from 'util/Loader';
+import './status-bar.css';
 
 export default class StatusBar {
     private mountNode: HTMLElement;
@@ -9,7 +9,6 @@ export default class StatusBar {
     private rewardSelect: Function;
 
     constructor( rewardSelect: Function, levelName: number, mountNode: HTMLElement ) {
-        Loader.css( 'StatusBar' );
         this.rewardSelect = rewardSelect;
         this.mountNode = mountNode;
         this.domElement = document.createElement( 'div' );
