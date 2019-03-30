@@ -28,7 +28,7 @@ jobs:
       # - run: npm test
       
       - persist_to_workspace:
-          root: /home/circleci/project
+          root: ~/project
           paths: build
 
   deploy:
@@ -39,7 +39,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /home/circleci/project
+          at: ~/project
       - run:
           name: Set CI user
           command: |
