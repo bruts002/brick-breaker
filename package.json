@@ -20,7 +20,7 @@
     "awesome-typescript-loader": "^5.2.1",
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.0",
-    "ejs-loader": "^0.3.1",
+    "ejs-loader": "^0.3.3",
     "file-loader": "^3.0.1",
     "fs-extra": "^7.0.1",
     "gh-pages": "^2.0.1",
