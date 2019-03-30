@@ -28,14 +28,6 @@ jobs:
       # - run: npm test
 
       - run: npm run build
-      - run: pwd
-      - run: ls
-      - run:
-          name: Set CI user
-          command: |
-            git config user.email "ci-build@brick-breaker.net"
-            git config user.name "ci-build"
-      - run: npm run deploy
       
       - persist_to_workspace:
           root: ./
@@ -53,11 +45,8 @@ jobs:
       - run:
           name: Set CI user
           command: |
-            npm install gh-pages@2.0.1
             git config user.email "ci-build@brick-breaker.net"
             git config user.name "ci-build"
-      - run: pwd
-      - run: ls
       - run: npm run deploy
 
 workflows:
