@@ -27,16 +27,7 @@ export default class Overview extends Component<State, Props> {
     ) {
         super(extensionPoint, { ...Overview.defaultProps, ...props });
 
-        this.state = {
-            selectedOption: PlayerTypes.defender,
-        };
-
-        // this.props = {
-        //     levelNumber: String ( 0 ),
-        //     defenderScore: 'def',
-        //     captureScore: 'cap',
-        //     // startLevel: this.callStartLevel
-        // };
+        this.state = { selectedOption: PlayerTypes.defender };
 
         this.mountComponent();
     }
