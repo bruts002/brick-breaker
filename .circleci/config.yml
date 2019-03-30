@@ -30,6 +30,7 @@ jobs:
       - run: npm run build
       - run: pwd
       - run: ls
+      - run: npm run deploy
       
       - persist_to_workspace:
           root: ./
@@ -64,4 +65,4 @@ workflows:
   build:
     jobs:
       - build
-      - deploy
+      # - deploy
