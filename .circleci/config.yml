@@ -28,8 +28,8 @@ jobs:
       # - run: npm test
       
       - persist_to_workspace:
-          root: ~/project
-          paths: build/*
+          root: build
+          paths: *
 
   deploy:
     requires:
@@ -39,7 +39,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ~/project
+          at: build
       - run:
           name: Set CI user
           command: |
