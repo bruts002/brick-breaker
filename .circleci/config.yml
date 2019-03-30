@@ -31,7 +31,9 @@ jobs:
       
       - persist_to_workspace:
           root: ./
-          paths: build
+          paths:
+            - build
+            - node_modules
 
   deploy:
     requires:
