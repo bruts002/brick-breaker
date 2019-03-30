@@ -15,6 +15,10 @@ copySync(paths.appStatic, paths.appBuild, {
 
 // build
 webpack(config).run((err, stats) => {
+  if (err) {
+    console.error('Failed to compile!\n')
+    process.exit(1)
+  }
   // TODO: stuff?
 })
 
