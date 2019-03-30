@@ -47,7 +47,7 @@ jobs:
       - run:
           name: Set CI user
           command: |
-            npm install -g --silent gh-pages@2.0.1
+            npm install -g gh-pages@2.0.1
             git config user.email "ci-build@brick-breaker.net"
             git config user.name "ci-build"
       - run: npm run deploy
