@@ -30,6 +30,11 @@ jobs:
       - run: npm run build
       - run: pwd
       - run: ls
+      - run:
+          name: Set CI user
+          command: |
+            git config user.email "ci-build@brick-breaker.net"
+            git config user.name "ci-build"
       - run: npm run deploy
       
       - persist_to_workspace:
