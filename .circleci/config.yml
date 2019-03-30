@@ -28,6 +28,8 @@ jobs:
       # - run: npm test
 
       - run: npm run build
+      - run: pwd
+      - run: ls
       
       - persist_to_workspace:
           root: ./
