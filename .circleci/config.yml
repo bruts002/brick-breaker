@@ -34,8 +34,8 @@ jobs:
       - persist_to_workspace:
           root: ./
           paths:
-            - build
-            - node_modules
+            - build/*
+            - node_modules/*
 
   deploy:
     requires:
@@ -52,6 +52,8 @@ jobs:
             npm install gh-pages@2.0.1
             git config user.email "ci-build@brick-breaker.net"
             git config user.name "ci-build"
+      - run: pwd
+      - run: ls
       - run: npm run deploy
     filters:
       branches:
