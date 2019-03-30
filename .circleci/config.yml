@@ -28,7 +28,7 @@ jobs:
       # - run: npm test
       
       - persist_to_workspace:
-          root: .
+          root: $CIRCLE_WORKING_DIRECTORY
           paths: build
 
   deploy:
@@ -38,12 +38,13 @@ jobs:
       - image: circleci/node:10.14.1
     steps:
       - attach_workspace:
-          at: docs/_build
+          at: $CIRCLE_WORKING_DIRECTORY
       - run:
           name: Set CI user
           command: |
             git config user.email "ci-build@brick-breaker.net"
             git config user.name "ci-build"
+      - deploy: npm run deploy
     filters:
       branches:
         only: master

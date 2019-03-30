@@ -7,7 +7,6 @@
     "start": "webpack-dev-server --config ./webpack.config.js --inline --progress --watch --open",
     "build": "cross-env NODE_ENV=production webpack --config ./webpack.config.js  --progress --profile --color --display-error-details --display-cached --bail",
     "x": "node scripts/build.js",
-    "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
   "repository": {
