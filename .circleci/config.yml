@@ -40,8 +40,8 @@ jobs:
       - persist_to_workspace:
           root: ./
           paths:
-            - build/*
-            - node_modules/*
+            - build
+            - node_modules
 
   deploy:
     requires:
@@ -70,4 +70,4 @@ workflows:
   build:
     jobs:
       - build
-      # - deploy
+      - deploy

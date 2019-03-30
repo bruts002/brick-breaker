@@ -1,6 +1,6 @@
 {
   "name": "brick-breaker",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Brick Breaker | Paddle Ball",
   "main": "src/index.ts",
   "scripts": {

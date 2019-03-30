@@ -1,9 +1,9 @@
 # Brick Breaker
 Break all the bricks!
+# [Click Here to play it now!](https://bruts002.github.io/brick-breaker/)
 
 ## Built upon
 
-- [x] [Webpack 3](https://webpack.js.org/)
-- [x] [Typescript 2](https://blogs.msdn.microsoft.com/typescript/2016/07/11/announcing-typescript-2-0-beta/)
-- [x] [Webpack Dashboard](https://github.com/FormidableLabs/webpack-dashboard)
+- [Webpack 4](https://webpack.js.org/)
+- [Typescript 3](https://devblogs.microsoft.com/typescript/)
 ![Image](./images/brick-breaker-overview.png)
