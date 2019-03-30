@@ -44,8 +44,6 @@ jobs:
             - node_modules
 
   deploy:
-    requires:
-      - build
     docker:
       - image: circleci/node:10.14.1
     steps:
