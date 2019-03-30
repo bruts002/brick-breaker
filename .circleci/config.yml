@@ -39,13 +39,13 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /tmp/workspace
+          at: /tmp
       - run:
           name: Set CI user
           command: |
             git config user.email "ci-build@brick-breaker.net"
             git config user.name "ci-build"
-      - deploy: npm run deploy
+      - run: npm run deploy
     filters:
       branches:
         only: master
