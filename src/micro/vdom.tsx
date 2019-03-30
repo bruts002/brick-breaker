@@ -2,24 +2,37 @@
 // https://medium.com/@deathmood/write-your-virtual-dom-2-props-events-a957608f5c76
 
 interface JSXType {
-  type: HTMLElementTagNameMap,
-  props: any,
-  children: JSXType[]
+  type: HTMLElementTagNameMap;
+  props: any;
+  children: JSXType[];
 }
 
 export const h: Function = (
   type: HTMLElementTagNameMap,
   props: any = {},
   ...children: JSXType[]
-): JSXType => ({
-  type,
-  props,
-  children
-})
+): JSXType => {
+  const spreadChildren: JSXType[] = [];
+  children.forEach( child => {
+    if (child instanceof Array) {
+      spreadChildren.push(...child);
+    } else {
+      spreadChildren.push(child);
+    }
+  });
+  return {
+    type,
+    props,
+    children: spreadChildren
+  };
+};
 
 export const createElement: Function = (node: JSXType|string): HTMLElement|Text => {
+  if (typeof node === 'number') {
+    throw TypeError(`children must either be a node or a string! typeof 'number' is not allowed`);
+  }
   if (typeof node === 'string') {
-    return document.createTextNode(node);
+    return document.createTextNode(String(node));
   }
   const $el: HTMLElement = document.createElement( String(node.type) );
   setProps($el, node.props);
@@ -28,12 +41,12 @@ export const createElement: Function = (node: JSXType|string): HTMLElement|Text 
     .map( (child: JSXType) => createElement(child))
     .forEach($el.appendChild.bind($el));
   return $el;
-}
+};
 
 const changed: Function = (
   node1: JSXType|string,
   node2: JSXType|string
-) : boolean => {
+): boolean => {
   const differentTypes: boolean = typeof node1 !== typeof node2;
   if (differentTypes) return true;
 
@@ -48,15 +61,15 @@ const changed: Function = (
     const differentTypes: boolean = n1.type !== n2.type;
     if (differentTypes) return true;
   }
-  return false
-}
+  return false;
+};
 
 export const updateElement: Function = (
   $parent: HTMLElement,
   newNode: JSXType|string,
   oldNode: JSXType|string,
   index = 0
-) : void => {
+): void => {
   if (!oldNode) {
     $parent.appendChild(
       createElement(newNode)
@@ -89,13 +102,13 @@ export const updateElement: Function = (
       );
     }
   }
-}
+};
 
 const setProp = (
   $target: HTMLElement,
   name: string,
   value: any
-) : void => {
+): void => {
   if (isCustomProp(name)) {
     return;
   } else if (name === 'className') {
@@ -103,49 +116,49 @@ const setProp = (
   } else if (typeof value === 'boolean') {
     setBooleanProp($target, name, value);
   } else {
-    $target.setAttribute(name, value)
+    $target.setAttribute(name, value);
   }
-}
+};
 
 const setProps = (
   $target: HTMLElement,
   props: any
-) : void => {
+): void => {
   for (const key in props) {
     setProp($target, key, props[key]);
   }
-}
+};
 
 const setBooleanProp = (
   $target: HTMLElement,
   name: string,
   value: any
-) : void => {
+): void => {
   if (value) {
     $target.setAttribute(name, value);
     $target[name] = true;
   } else {
     $target[name] = false;
   }
-}
+};
 
-const isCustomProp = (name: string) : boolean => {
+const isCustomProp = (name: string): boolean => {
   return isEventProp(name);
-}
+};
 
 const removeBooleanProp = (
   $target: HTMLElement,
   name: string
-) : void => {
+): void => {
   $target.removeAttribute(name);
   $target[name] = false;
-}
+};
 
 const removeProp = (
   $target: HTMLElement,
   name: string,
   value: any
-) : void => {
+): void => {
   if (isCustomProp(name)) {
     return;
   } else if (name === 'className') {
@@ -155,31 +168,31 @@ const removeProp = (
   } else {
     $target.removeAttribute(name);
   }
-}
+};
 
 const updateProp = (
   $target: HTMLElement,
   name: string,
   newVal: any,
   oldVal: any
-) : void => {
+): void => {
   if (!newVal) {
     removeProp($target, name, oldVal);
   } else if (!oldVal || newVal !== oldVal) {
     setProp($target, name, newVal);
   }
-}
+};
 
 const updateProps: Function = (
   $target: HTMLElement,
   newProps: any,
   oldProps = {}
-) : void => {
+): void => {
   const props = { ...newProps, oldProps };
   for (const prop in props) {
     updateProp($target, prop, newProps[prop], oldProps[prop]);
   }
-}
+};
 
 const isEventProp = (name: string): boolean => /^on/.test(name);
 
@@ -189,7 +202,7 @@ const addEventListeners = (
   $target: HTMLElement,
   props: any = {}
 ): void => {
-  props = props || {}
+  props = props || {};
   Object.keys(props).forEach(name => {
     if (isEventProp(name)) {
       $target.addEventListener(
@@ -198,7 +211,7 @@ const addEventListeners = (
       );
     }
   });
-}
+};
 
 
 

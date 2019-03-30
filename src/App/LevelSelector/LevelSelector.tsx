@@ -13,24 +13,39 @@ export default class LevelSelector {
     private cb: Function;
     private levelThumbNails: LevelThumbNails;
     private overview: Overview;
+    private selectedLevel: number;
 
     private static defaultMessage: string = 'Choose a level';
 
     constructor( cb: Function ) {
         this.cb = cb;
+        this.selectedLevel = 0;
         this.modal = new Modal( false );
+        const overviewMountNode: HTMLDivElement = document.createElement('div');
+        const levelThumbnailsMountNode: HTMLDivElement = document.createElement('div');
+        [overviewMountNode, levelThumbnailsMountNode].forEach( node => {
+            this.modal.extensionPoint.appendChild(node);
+        });
         this.overview = new Overview(
-            this.modal.extensionPoint,
+            overviewMountNode,
             {
                 startLevel: this.startLevel.bind( this )
             }
         );
-        this.levelThumbNails = new LevelThumbNails( this.modal.extensionPoint, this.updateOverview.bind( this ) );
+        this.levelThumbNails = new LevelThumbNails(
+            levelThumbnailsMountNode,
+            {
+                updateSelectedLevel: this.updateOverview.bind( this ),
+                selectedLevel: this.selectedLevel
+            }
+        );
+
     }
 
     private updateOverview( levelNumber: number ): void {
         const defenderScore: number = UserScore.getScore( levelNumber, PlayerTypes.defender );
         const captureScore: number = UserScore.getScore( levelNumber, PlayerTypes.capture );
+        this.levelThumbNails.updateProps({ selectedLevel: levelNumber });
         this.overview.updateProps({
             levelNumber,
             defenderScore,
