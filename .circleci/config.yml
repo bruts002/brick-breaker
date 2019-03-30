@@ -26,10 +26,12 @@ jobs:
 
       # run tests!
       # - run: npm test
+
+      - run: npm run build
       
       - persist_to_workspace:
           root: ./
-          paths: package.json
+          paths: build
 
   deploy:
     requires:
