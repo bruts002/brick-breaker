@@ -35,7 +35,7 @@ jobs:
             - build
             - node_modules
 
-  deploy:
+  gh-deploy:
     docker:
       - image: circleci/node:10.14.1
     steps:
@@ -48,15 +48,35 @@ jobs:
             git config user.email "ci-build@brick-breaker.net"
             git config user.name "ci-build"
       - run: npm run deploy
+  
+  s3-deploy:
+    docker:
+        - image: circleci/python:2.7-jessie
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ./
+      - run:
+          name: Install awscli
+          command: sudo pip install awscli
+      - run:
+          name: Deploy to S3
+          command: aws s3 sync build s3://brick-breaker-staging/{{ .Branch }} --delete
 
 workflows:
   version: 2
   build:
     jobs:
       - build
-      - deploy:
+      - gh-deploy:
           requires:
             - build
           filters:
             branches:
               only: master
+      - s3-deply:
+          requires:
+            - build
+          filters:
+            branches:
+              only: /feature\/.*/
