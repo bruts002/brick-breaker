@@ -50,6 +50,7 @@ jobs:
       - run: npm run deploy
   
   s3-deploy:
+    name: 'Deploy build to s3 staging bucket'
     docker:
         - image: circleci/python:2.7-jessie
     steps:
