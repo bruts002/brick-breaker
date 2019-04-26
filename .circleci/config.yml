@@ -74,7 +74,7 @@ workflows:
           filters:
             branches:
               only: master
-      - s3-deply:
+      - s3-deploy:
           requires:
             - build
           filters:
