@@ -23,7 +23,7 @@ import RewardEnum from '../interfaces/Reward';
 export default class GameBoard {
     private activeKeys: Map<number, boolean>;
     private bullets: Array<Bullet>;
-    private rewards: Array<Reward>;
+    private fallingRewards: Array<Reward>;
     private updateInterval: number;
     private balls: Array<Ball>;
     private domElement: SVGElement;
@@ -51,7 +51,7 @@ export default class GameBoard {
         this.modal = new Modal();
         this.balls = [];
         this.bullets = [];
-        this.rewards = [];
+        this.fallingRewards = [];
         this.levelEnded = false;
         if ( this.option === PlayerTypes.defender ) {
             this.score = 0;
@@ -165,7 +165,7 @@ export default class GameBoard {
         this.renderedBlocks.splice( index, 1 );
     }
     private dropReward( start: Vector, type: RewardEnum ): void {
-        this.rewards.push( new Reward( start, type, this.domElement ) );
+        this.fallingRewards.push( new Reward( start, type, this.domElement ) );
     }
     private getBlock( point: Vector ): Block {
         let block: Block;
@@ -259,7 +259,7 @@ export default class GameBoard {
     private updateRewards(): void {
         let toDelete: Array<number> = [];
         let offset: number = 0;
-        this.rewards.forEach( ( reward: Reward, index: number ) => {
+        this.fallingRewards.forEach( ( reward: Reward, index: number ) => {
             const nxtPos = reward.getNextPosition();
             const paddlePos: Vector = this.paddle.getPoint();
             const paddleSize: Size = this.paddle.getSize();
@@ -276,7 +276,7 @@ export default class GameBoard {
             }
         });
         toDelete.forEach( ( idx: number ) => {
-            this.rewards.splice( idx + offset, 1 );
+            this.fallingRewards.splice( idx + offset, 1 );
             offset -= 1;
         });
     }
@@ -447,6 +447,12 @@ export default class GameBoard {
     private globalKeyListener( e: KeyboardEvent ): void {
         if ( e.keyCode === 27 && this.levelEnded === false ) {
             this.pauseGame();
+        } else if (e.code.startsWith('Digit')) {
+            const reward: RewardEnum = <RewardEnum>+e.code.match(/\d/)[0];
+            if (this.availableRewards.indexOf(reward) !== -1) {
+                this.rewardSelect(reward);
+            }
+
         }
     }
     private dispatchActions(): void {
@@ -496,7 +502,7 @@ export default class GameBoard {
         AI.makeMove(
             this.ai,
             this.balls,
-            this.rewards,
+            this.fallingRewards,
             this.size
         );
     }
