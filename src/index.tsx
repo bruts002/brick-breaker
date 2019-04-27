@@ -1,5 +1,6 @@
 import micro from 'micro';
 import GameBoard from 'App/GameBoard/GameBoard';
+import './index.css';
 
 import LevelI from 'App/interfaces/LevelI';
 import PlayerTypes from 'App/interfaces/PlayerTypes';
@@ -34,7 +35,7 @@ export default class Main {
     }
 }
 
-const mountNode: HTMLElement = document.getElementById('gameBoard');
+const mountNode: HTMLElement = document.getElementById('game-board');
 
 const start = () => new Main( mountNode );
 
