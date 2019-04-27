@@ -48,11 +48,17 @@ export default class StatusBar {
     public addReward( reward: RewardEnum ): void {
         this.removeSelection();
         const node = document.createElement( 'div' );
-        node.onclick = () => {
+        const selectReward = (): void => {
             this.rewardSelect( reward );
             this.removeSelection();
             node.id = StatusBar.ID.SELECTED;
         };
+        node.addEventListener('click', selectReward);
+        document.body.addEventListener('keydown', (ev: KeyboardEvent) => {
+            if (ev.code === `Digit${reward}`) {
+                selectReward();
+            }
+        });
         node.id = StatusBar.ID.SELECTED;
         node.innerHTML = String ( reward );
         this.rewards.appendChild( node );
