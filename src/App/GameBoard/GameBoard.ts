@@ -23,7 +23,7 @@ import RewardEnum from '../interfaces/Reward';
 export default class GameBoard {
     private activeKeys: Map<number, boolean>;
     private bullets: Array<Bullet>;
-    private rewards: Array<Reward>;
+    private fallingRewards: Array<Reward>;
     private updateInterval: number;
     private balls: Array<Ball>;
     private domElement: SVGElement;
@@ -37,6 +37,7 @@ export default class GameBoard {
     private levelEnded: boolean;
     private statusBar: StatusBar;
     private score: number;
+    private availableRewards: RewardEnum[];
 
     public constructor(
         private size: Size,
@@ -45,11 +46,12 @@ export default class GameBoard {
         private levelNumber: number,
         private option: PlayerTypes
     ) {
+        this.availableRewards = [];
         this.activeKeys = new Map();
         this.modal = new Modal();
         this.balls = [];
         this.bullets = [];
-        this.rewards = [];
+        this.fallingRewards = [];
         this.levelEnded = false;
         if ( this.option === PlayerTypes.defender ) {
             this.score = 0;
@@ -70,11 +72,26 @@ export default class GameBoard {
         this.domElement.setAttribute( 'viewBox', '0 0 ' + this.size.width + ' ' + this.size.height );
         // TODO: use classes instead of inline styles
         this.domElement.setAttribute( 'style', 'border:1px solid black;' );
-        this.statusBar = new StatusBar( this.rewardSelect.bind( this ), levelNumber, this.mountNode );
         mountNode.appendChild( this.domElement );
+        const statusBarWrapperNode: HTMLDivElement = document.createElement('div');
+        statusBarWrapperNode.style.flexBasis = '15%';
+        mountNode.appendChild(statusBarWrapperNode);
+        this.statusBar = new StatusBar(
+            statusBarWrapperNode,
+            {
+                onRewardSelect: this.rewardSelect.bind(this),
+                selectedReward: null,
+                levelNumber,
+                score: this.score,
+                rewards: this.availableRewards
+            }
+        );
     }
     private rewardSelect( reward: RewardEnum ): void {
         this.player.applyReward( reward );
+        this.statusBar.updateProps({
+            selectedReward: reward
+        });
     }
     public init( level: LevelI ): void {
         // build stuff
@@ -148,7 +165,7 @@ export default class GameBoard {
         this.renderedBlocks.splice( index, 1 );
     }
     private dropReward( start: Vector, type: RewardEnum ): void {
-        this.rewards.push( new Reward( start, type, this.domElement ) );
+        this.fallingRewards.push( new Reward( start, type, this.domElement ) );
     }
     private getBlock( point: Vector ): Block {
         let block: Block;
@@ -228,20 +245,21 @@ export default class GameBoard {
         } else if ( this.option === PlayerTypes.capture ) {
             this.score -= 5;
         }
-        this.statusBar.updateScore( this.score );
+        this.statusBar.updateProps({ score: this.score });
     }
-    private applyReward( reward: RewardEnum, what: PlayerTypes ): void {
-        if ( what === this.option ) this.statusBar.addReward( reward );
-        if ( what === PlayerTypes.defender ) {
-            this.paddle.applyReward( reward );
-        } else if ( what === PlayerTypes.capture ) {
-            this.guy.applyReward( reward );
+    private catchReward( reward: RewardEnum, what: PlayerTypes ): void {
+        if ( what === this.option ) {
+            this.availableRewards = this.availableRewards.concat(reward);
+            this.statusBar.updateProps({
+                rewards: this.availableRewards
+            });
+            this.rewardSelect(reward);
         }
     }
     private updateRewards(): void {
         let toDelete: Array<number> = [];
         let offset: number = 0;
-        this.rewards.forEach( ( reward: Reward, index: number ) => {
+        this.fallingRewards.forEach( ( reward: Reward, index: number ) => {
             const nxtPos = reward.getNextPosition();
             const paddlePos: Vector = this.paddle.getPoint();
             const paddleSize: Size = this.paddle.getSize();
@@ -250,7 +268,7 @@ export default class GameBoard {
                 toDelete.push( index );
                 reward.destroy();
             } else if ( isCollision( nxtPos, paddlePos, paddleSize ) ) {
-                this.applyReward( reward.rewardType, PlayerTypes.defender );
+                this.catchReward( reward.rewardType, PlayerTypes.defender );
                 toDelete.push( index );
                 reward.destroy();
             } else {
@@ -258,7 +276,7 @@ export default class GameBoard {
             }
         });
         toDelete.forEach( ( idx: number ) => {
-            this.rewards.splice( idx + offset, 1 );
+            this.fallingRewards.splice( idx + offset, 1 );
             offset -= 1;
         });
     }
@@ -429,6 +447,12 @@ export default class GameBoard {
     private globalKeyListener( e: KeyboardEvent ): void {
         if ( e.keyCode === 27 && this.levelEnded === false ) {
             this.pauseGame();
+        } else if (e.code.startsWith('Digit')) {
+            const reward: RewardEnum = <RewardEnum>+e.code.match(/\d/)[0];
+            if (this.availableRewards.indexOf(reward) !== -1) {
+                this.rewardSelect(reward);
+            }
+
         }
     }
     private dispatchActions(): void {
@@ -478,7 +502,7 @@ export default class GameBoard {
         AI.makeMove(
             this.ai,
             this.balls,
-            this.rewards,
+            this.fallingRewards,
             this.size
         );
     }

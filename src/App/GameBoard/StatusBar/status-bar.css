@@ -1,9 +1,7 @@
 .status-bar {
     font-family: ARCADECLASSIC;
-    float: right;
-    width: calc( 15% - 2px );
     text-align: center;
 }
-.status-bar #rewards #selected {
+.status-bar__reward--selected {
     border: 2px solid red;
 }
