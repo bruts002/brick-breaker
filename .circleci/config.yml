@@ -79,7 +79,7 @@ jobs:
           command: aws s3 ls s3://brick-breaker-staging/feature/ | sed 's/^ *PRE //' >> deployments.txt
       - run:
           name: List active branches # TODO: remove branches with no activity in a month
-          command: git branch -r | grep feature | sed 's/origin\/feature\//' >> branches.txt
+          command: git branch -r | grep feature | sed 's/origin\/feature\///' >> branches.txt
       - run:
           name: List deployments with no active branch
           command: comm -23 deployments.txt branches.txt >> old-deployments.txt
