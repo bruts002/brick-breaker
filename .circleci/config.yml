@@ -86,6 +86,12 @@ jobs:
       - run:
           name: Remove deployments with no active branch
           command: while read in; do aws s3 rm s3://brick-breaker-staging/feature/$in --recursive; done < old-deployments.txt
+      - run: # TODO: make a better webpage than that!
+          name: Generate `feature/index.html` with list of branches
+          command: sed 's/.*/<a href=".\/&\/">&<a><br>/' branches.txt > index.html
+      - run:
+          name: Upload `feature/index.html` to S3
+          command: aws s3 sync index.html s3://brick-breaker-staging/feature/
 
 workflows:
   version: 2
