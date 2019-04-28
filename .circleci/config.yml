@@ -72,11 +72,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install awscli
+          name: Install awscli # https://docs.aws.amazon.com/cli/latest/reference/s3/index.html#cli-aws-s3
           command: sudo pip install awscli
       - run:
           name: List active deployments
-          command: aws s3 ls s3://brick-breaker-staging/feature/ | sed 's/^ *PRE //' >> deployments.txt
+          command: aws s3 ls s3://brick-breaker-staging/feature/ | grep -v index.html | sed 's/^ *PRE //' >> deployments.txt
       - run:
           name: List active branches # TODO: remove branches with no activity in a month
           command: git branch -r | grep feature | sed 's/origin\/feature\///' >> branches.txt
