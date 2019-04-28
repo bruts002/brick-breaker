@@ -84,17 +84,17 @@ workflows:
   version: 2
   build:
     jobs:
-      - build
+      # - build
       - s3-clean
-      - gh-deploy:
-          requires:
-            - build
-          filters:
-            branches:
-              only: master
-      - s3-deploy:
-          requires:
-            - build
-          filters:
-            branches:
-              only: /feature\/.*/
+      # - gh-deploy:
+      #     requires:
+      #       - build
+      #     filters:
+      #       branches:
+      #         only: master
+      # - s3-deploy:
+      #     requires:
+      #       - build
+      #     filters:
+      #       branches:
+      #         only: /feature\/.*/
