@@ -85,23 +85,23 @@ jobs:
           command: comm -23 deployments.txt branches.txt >> old-deployments.txt
       - run:
           name: Remove deployments with no active branch
-          command: while read in; do aws s3 rm s3://brick-breaker-staging/feature/$in --recursive --dryrun; done < old-deployments.txt
+          command: while read in; do aws s3 rm s3://brick-breaker-staging/feature/$in --recursive; done < old-deployments.txt
 
 workflows:
   version: 2
   build:
     jobs:
-      # - build
+      - build
       - s3-clean
-      # - gh-deploy:
-      #     requires:
-      #       - build
-      #     filters:
-      #       branches:
-      #         only: master
-      # - s3-deploy:
-      #     requires:
-      #       - build
-      #     filters:
-      #       branches:
-      #         only: /feature\/.*/
+      - gh-deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - s3-deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: /feature\/.*/ # if this changes, make sure to update `s3-clean`
