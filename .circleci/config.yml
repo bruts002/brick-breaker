@@ -76,25 +76,22 @@ jobs:
           command: sudo pip install awscli
       - run:
           name: List active deployments
-          command: aws s3 ls s3://brick-breaker-staging/does-not-exist/
-      # - run:
-      #     name: List active deployments
-      #     command: aws s3 ls s3://brick-breaker-staging/feature/ | grep -v index.html | sed 's/^ *PRE //' >> deployments.txt
-      # - run:
-      #     name: List active branches # TODO: remove branches with no activity in a month
-      #     command: git branch -r | grep feature | sed 's/origin\/feature\///' >> branches.txt
-      # - run:
-      #     name: List deployments with no active branch
-      #     command: comm -23 deployments.txt branches.txt >> old-deployments.txt
-      # - run:
-      #     name: Remove deployments with no active branch
-      #     command: while read in; do aws s3 rm s3://brick-breaker-staging/feature/$in --recursive; done < old-deployments.txt
-      # - run: # TODO: make a better webpage than that!
-      #     name: Generate `feature/index.html` with list of branches
-      #     command: sed 's/[^ ].*/<a href=".\/&\/">&<a><br>/' branches.txt > index.html
-      # - run:
-      #     name: Upload `feature/index.html` to S3
-      #     command: aws s3 mv index.html s3://brick-breaker-staging/feature/index.html
+          command: (aws s3 ls s3://brick-breaker-staging/feature/ | grep -v index.html | sed 's/^ *PRE //' >> deployments.txt) || touch deployments.txt
+      - run:
+          name: List active branches # TODO: remove branches with no activity in a month
+          command: (git branch -r | grep feature | sed 's/origin\/feature\///' >> branches.txt) || touch branches.txt
+      - run:
+          name: List deployments with no active branch
+          command: comm -23 deployments.txt branches.txt >> old-deployments.txt
+      - run:
+          name: Remove deployments with no active branch
+          command: while read in; do aws s3 rm s3://brick-breaker-staging/feature/$in --recursive; done < old-deployments.txt
+      - run: # TODO: make a better webpage than that!
+          name: Generate `feature/index.html` with list of branches
+          command: sed 's/[^ ].*/<a href=".\/&\/">&<a><br>/' branches.txt > index.html
+      - run:
+          name: Upload `feature/index.html` to S3
+          command: aws s3 mv index.html s3://brick-breaker-staging/feature/index.html
 
 workflows:
   version: 2
