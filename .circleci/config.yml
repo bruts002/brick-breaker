@@ -85,7 +85,7 @@ jobs:
           command: comm -23 deployments.txt branches.txt >> old-deployments.txt
       - run:
           name: Remove deployments with no active branch
-          command: while read in; do aws s3 rm s3://brick-breaker-staging/feature/$in --recursive --dry-run; done < old-deployments.txt
+          command: while read in; do aws s3 rm s3://brick-breaker-staging/feature/$in --recursive --dryrun; done < old-deployments.txt
 
 workflows:
   version: 2
