@@ -91,7 +91,7 @@ jobs:
           command: sed 's/.*/<a href=".\/&\/">&<a><br>/' branches.txt > index.html
       - run:
           name: Upload `feature/index.html` to S3
-          command: aws s3 sync index.html s3://brick-breaker-staging/feature/
+          command: aws s3 mv index.html s3://brick-breaker-staging/feature/index.html
 
 workflows:
   version: 2
