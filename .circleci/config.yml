@@ -76,13 +76,16 @@ jobs:
           command: sudo pip install awscli
       - run:
           name: List active deployments
-          command: aws s3 ls s3://brick-breaker-staging/feature/ | sed 's/^ *PRE /origin\/feature\//' >> deployments.txt
+          command: aws s3 ls s3://brick-breaker-staging/feature/ | sed 's/^ *PRE //' >> deployments.txt
       - run:
           name: List active branches # TODO: remove branches with no activity in a month
-          command: git branch -r | grep feature >> branches.txt
+          command: git branch -r | grep feature | sed 's/origin\/feature\//' >> branches.txt
+      - run:
+          name: List deployments with no active branch
+          command: comm -23 deployments.txt branches.txt >> old-deployments.txt
       - run:
           name: Remove deployments with no active branch
-          command: comm -23 deployments.txt branches.txt
+          command: while read in; aws s3 rm s3://brick-breaker-staging/feature/$in --recursive --dry-run; done < old-deployments.txt
 
 workflows:
   version: 2
