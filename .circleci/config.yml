@@ -88,7 +88,7 @@ jobs:
           command: while read in; do aws s3 rm s3://brick-breaker-staging/feature/$in --recursive; done < old-deployments.txt
       - run: # TODO: make a better webpage than that!
           name: Generate `feature/index.html` with list of branches
-          command: sed 's/[^ ].*/<a href=".\/&\/">&<a><br>/' branches.txt > index.html
+          command: (sed 's/[^ ].*/<a href=".\/&\/">&<a><br>/' branches.txt) || echo "<h1>No Features Deployed</h1>" > index.html
       - run:
           name: Upload `feature/index.html` to S3
           command: aws s3 mv index.html s3://brick-breaker-staging/feature/index.html
