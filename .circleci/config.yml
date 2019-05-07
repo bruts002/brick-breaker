@@ -53,6 +53,16 @@ jobs:
   s3-deploy:
     name: 'Deploy build to s3 staging bucket'
     docker:
+      - image: circleci/node:10.14.1
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ./
+      - run: node scripts/s3-deploy.js
+
+  old-s3-deploy:
+    name: 'Deploy build to s3 staging bucket'
+    docker:
         - image: circleci/python:2.7-jessie
     steps:
       - checkout
