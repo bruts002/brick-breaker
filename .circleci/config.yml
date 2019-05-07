@@ -98,7 +98,7 @@ jobs:
           command: while read in; do aws s3 rm s3://brick-breaker-staging/feature/$in --recursive; done < old-deployments.txt
       - run: # TODO: make a better webpage than that!
           name: Generate `feature/index.html` with list of branches # TODO: Create git push hook that will echo where it will be deployed
-          command: sed 's/[^ ].*/<a href=".\/&\/">&<a><br>/' branches.txt > index.html
+          command: sed 's/[^ ].*/<a href=".\/&\/index.html">&<a><br>/' branches.txt > index.html
       - run:
           name: 'Make sure index.html exists'
           command: cat index.html || echo "<h1>No Features Deployed</h1>" > index.html
