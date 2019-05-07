@@ -60,21 +60,6 @@ jobs:
           at: ./
       - run: node scripts/s3-deploy.js
 
-  old-s3-deploy:
-    name: 'Deploy build to s3 staging bucket'
-    docker:
-        - image: circleci/python:2.7-jessie
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ./
-      - run:
-          name: Install awscli
-          command: sudo pip install awscli
-      - run:
-          name: Deploy to S3
-          command: aws s3 sync build s3://brick-breaker-staging/${CIRCLE_BRANCH} --delete
-  
   s3-clean: # TODO: Use https://www.npmjs.com/package/aws-sdk for this
     name: 'Remove merged (or deleted) branches deployments'
     docker:
