@@ -75,7 +75,9 @@ workflows:
   build:
     jobs:
       - build
-      - s3-clean
+      - s3-clean:
+          requires:
+            - build
       - gh-deploy:
           requires:
             - build
