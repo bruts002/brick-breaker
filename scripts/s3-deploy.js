@@ -35,8 +35,6 @@ function uploadDir({
 
   walkSync(dir, filePath => {
     const bucketPath = buildBucketPath(filePath)
-    // console.log(`bucketPath: ${bucketPath}`)
-    // return
     const params = {
       Bucket: bucketName,
       Key: bucketPath,
