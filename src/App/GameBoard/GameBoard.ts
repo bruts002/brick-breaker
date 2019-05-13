@@ -14,7 +14,6 @@ import Guy from './Guy';
 import Bullet from './Bullet';
 import { isCollision, isNear } from './CollisionUtil';
 import Modal from 'biblioteca/Modal';
-import LevelSelector from '../LevelSelector/LevelSelector';
 import UserScore from '../UserScore/UserScore';
 import StatusBar from './StatusBar/StatusBar';
 import Reward from './Reward';
@@ -42,7 +41,7 @@ export default class GameBoard {
     public constructor(
         private size: Size,
         private mountNode: HTMLElement,
-        private levelSelector: LevelSelector,
+        private onEndGame: (level: number, message: string) => void,
         private levelNumber: number,
         private option: PlayerTypes
     ) {
@@ -195,28 +194,23 @@ export default class GameBoard {
         UserScore.setScore( this.levelNumber, this.option, this.score );
 
         let msg: string;
-        let success: boolean;
 
         if ( this.option === PlayerTypes.defender ) {
             if ( this.renderedBlocks.length === 0 ) {
                 msg = 'Level Complete!';
-                success = true;
             } else if ( this.balls.length === 0 ) {
                 msg = 'Level Failed!';
-                success = false;
             }
         } else if ( this.option === PlayerTypes.capture ) {
             if ( this.renderedBlocks.length === 0 ) {
                 msg = 'Level Failed!';
-                success = false;
             } else if ( this.balls.length === 0 ) {
                 msg = 'Level Complete!';
-                success = true;
             }
         }
         clearInterval( this.updateInterval );
         this.levelEnded = true;
-        this.levelSelector.show( this.levelNumber, msg, success );
+        this.onEndGame( this.levelNumber, msg );
         this.destroy();
     }
     private stop(): void {

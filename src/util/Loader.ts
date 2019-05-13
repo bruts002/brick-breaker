@@ -1,5 +1,6 @@
 import LevelI from 'App/interfaces/LevelI';
 
+declare var process: any;
 const isDev = process.env.NODE_ENV === 'development';
 
 const getUrl = (level: string) => `${isDev ? 'static/' : ''}levels/${level}.json`;

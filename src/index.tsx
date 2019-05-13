@@ -1,5 +1,6 @@
 import micro from 'micro';
 import GameBoard from 'App/GameBoard/GameBoard';
+import Modal from 'biblioteca/Modal';
 import './index.css';
 
 import LevelI from 'App/interfaces/LevelI';
@@ -10,10 +11,22 @@ export default class Main {
 
     private levelSelector: LevelSelector;
     private gameBoard: GameBoard;
+    private modal: Modal;
 
     constructor( private mountNode: HTMLElement ) {
-        this.levelSelector = new LevelSelector( this.setLevel.bind(this) );
-        this.levelSelector.show(0);
+        this.modal = new Modal( false );
+        this.levelSelector = new LevelSelector({
+            onStartLevel: this.setLevel.bind(this),
+            extensionPoint: this.modal.extensionPoint
+        });
+        this.modal.show('Choose a level');
+
+        this.handleEndGame = this.handleEndGame.bind(this);
+    }
+
+    private handleEndGame(level: number, message: string) {
+        this.levelSelector.updateOverview(level);
+        this.modal.show(message + 'Choose a level');
     }
 
     private setLevel( level: LevelI, levelNumber: number, option: PlayerTypes ): void {
@@ -21,11 +34,12 @@ export default class Main {
         this.gameBoard = new GameBoard(
             level.size,
             this.mountNode,
-            this.levelSelector,
+            this.handleEndGame,
             levelNumber,
             option
         );
         this.gameBoard.init(level);
+        this.modal.hide();
     }
 
     private clearLevel(): void {
