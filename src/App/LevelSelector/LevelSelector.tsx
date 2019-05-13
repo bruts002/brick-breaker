@@ -23,7 +23,7 @@ export default class LevelSelector {
         this.selectedLevel = 0;
         const overviewMountNode: HTMLDivElement = document.createElement('div');
         const levelThumbnailsMountNode: HTMLDivElement = document.createElement('div');
-        [overviewMountNode, levelThumbnailsMountNode].forEach( node => {
+        [levelThumbnailsMountNode, overviewMountNode].forEach( node => {
             props.extensionPoint.appendChild(node);
         });
         this.overview = new Overview(

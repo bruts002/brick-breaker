@@ -2,6 +2,7 @@ import micro from 'micro';
 import GameBoard from 'App/GameBoard/GameBoard';
 import Modal from 'biblioteca/Modal';
 import './index.css';
+import './tab-container.css';
 
 import LevelI from 'App/interfaces/LevelI';
 import PlayerTypes from 'App/interfaces/PlayerTypes';
@@ -16,14 +17,14 @@ export default class Main {
     constructor( private mountNode: HTMLElement ) {
         this.modal = new Modal( false );
         const tabContainer: HTMLDivElement = document.createElement('div');
+        tabContainer.classList.add('tab-container');
         tabContainer.innerHTML = `
-        <header>
-            <ul style='display: flex;list-style:none;'>
-                <li><button id='section-one-button'>Play</button></li>
-                <li><button id='section-two-button'>Build</button></li>
-            </ul>
-        </header>
-        <div>
+        <div class='tab-container__controls'>
+            <button id='section-one-button' class='active'>Play</button>
+            <button id='section-two-button'>Build</button>
+            <div class='filler'></div>
+        </div>
+        <div class='tab-container__content'>
             <div id='section-one-body'></div>
             <div id='section-two-body' style='display:none;'>Build Content</div>
         </div>
@@ -34,11 +35,15 @@ export default class Main {
         const sectionTwoBody: HTMLElement = tabContainer.querySelector('#section-two-body');
         sectionOneButton.addEventListener('click', () => {
             sectionTwoBody.style.display = 'none';
-            sectionOneBody.style.display = 'block';
+            sectionOneBody.style.display = 'flex';
+            sectionOneButton.classList.add('active');
+            sectionTwoButton.classList.remove('active');
         });
         sectionTwoButton.addEventListener('click', () => {
-            sectionTwoBody.style.display = 'block';
+            sectionTwoBody.style.display = 'flex';
             sectionOneBody.style.display = 'none';
+            sectionTwoButton.classList.add('active');
+            sectionOneButton.classList.remove('active');
         });
         this.modal.extensionPoint.appendChild(tabContainer);
         this.levelSelector = new LevelSelector({
