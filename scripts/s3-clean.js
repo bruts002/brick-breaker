@@ -47,7 +47,7 @@ function getFileContent(branches) {
 <html>
 <h1>Deployed Feature Branches</h1>
 <ul>
-  ${branches.map(branch => `<li><a href="./${branch}/index.html">${branch}</a></li>`)}
+  ${branches.map(branch => `<li><a href="./${branch}/index.html">${branch}</a></li>`).join('\r\n  ')}
 </ul>
   `
   } else {
@@ -80,8 +80,7 @@ Promise.all([getActiveBranches(), getActiveDeployments()]).then(([activeBranches
       else console.log(`data: ${JSON.stringify(data)}`)
     })
   }
-  const activeDeployedBranches = Object.keys(activeDeployments).filter(branch => activeBranches.indexOf(branch) !== -1)
-  const fileContent = getFileContent(activeDeployedBranches)
+  const fileContent = getFileContent(activeBranches)
   const params = {
     Bucket: bucketName,
     Key: 'feature/index.html',
