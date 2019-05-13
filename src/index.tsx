@@ -15,11 +15,37 @@ export default class Main {
 
     constructor( private mountNode: HTMLElement ) {
         this.modal = new Modal( false );
+        const tabContainer: HTMLDivElement = document.createElement('div');
+        tabContainer.innerHTML = `
+        <header>
+            <ul style='display: flex;list-style:none;'>
+                <li><button id='section-one-button'>Play</button></li>
+                <li><button id='section-two-button'>Build</button></li>
+            </ul>
+        </header>
+        <div>
+            <div id='section-one-body'></div>
+            <div id='section-two-body' style='display:none;'>Build Content</div>
+        </div>
+        `;
+        const sectionOneButton: HTMLElement = tabContainer.querySelector('#section-one-button');
+        const sectionTwoButton: HTMLElement = tabContainer.querySelector('#section-two-button');
+        const sectionOneBody: HTMLElement = tabContainer.querySelector('#section-one-body');
+        const sectionTwoBody: HTMLElement = tabContainer.querySelector('#section-two-body');
+        sectionOneButton.addEventListener('click', () => {
+            sectionTwoBody.style.display = 'none';
+            sectionOneBody.style.display = 'block';
+        });
+        sectionTwoButton.addEventListener('click', () => {
+            sectionTwoBody.style.display = 'block';
+            sectionOneBody.style.display = 'none';
+        });
+        this.modal.extensionPoint.appendChild(tabContainer);
         this.levelSelector = new LevelSelector({
             onStartLevel: this.setLevel.bind(this),
-            extensionPoint: this.modal.extensionPoint
+            extensionPoint: sectionOneBody
         });
-        this.modal.show('Choose a level');
+        this.modal.show('');
 
         this.handleEndGame = this.handleEndGame.bind(this);
     }
