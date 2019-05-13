@@ -17,8 +17,14 @@ function getActiveDeployments() {
         reject(err)
       } else {
         const deployedFeatures = data.Contents
-          .filter(({ Key }) => /^feature\/.*\/index\.html$/.test(Key))
-          .map(({ Key }) => Key.slice(8, -11)) // trim 'feature/' and '/index.html'
+          .filter(({ Key }) => /^feature\/[^index.html]/.test(Key))
+          .reduce((acc, curr) => {
+            const [,branchName,...asset] = curr.Key.split('/')
+            if (!acc[branchName]) acc[branchName] = []
+            acc[branchName] = acc[branchName].concat(asset.join('/'))
+            return acc
+          }, {}
+        )
         resolve(deployedFeatures)
       }
     })
@@ -53,17 +59,28 @@ function getFileContent(branches) {
 }
 
 Promise.all([getActiveBranches(), getActiveDeployments()]).then(([activeBranches, activeDeployments]) => {
-  const objectsToDelete = activeDeployments.filter(branch => activeBranches.indexOf(branch) === -1)
+  const objectsToDelete = Object.entries(activeDeployments).reduce(
+    (acc,[branch,assets]) => {
+      if (activeBranches.indexOf(branch) === -1) {
+        return acc.concat(assets.map(asset => ({ Key: `feature/${branch}/${asset}`})))
+      } else {
+        return acc
+      }
+    }, []
+  )
   if (objectsToDelete.length) {
     s3.deleteObjects({
       Bucket: bucketName,
       Delete: {
         Quiet: false,
-        Objects: objectsToDelete.map(Key => ({ Key }))
+        Objects: objectsToDelete
       }
+    }, (err, data) => {
+      if (err) console.log(`err: ${err}`)
+      else console.log(`data: ${JSON.stringify(data)}`)
     })
   }
-  const activeDeployedBranches = activeDeployments.filter(branch => activeBranches.indexOf(branch) !== -1)
+  const activeDeployedBranches = Object.keys(activeDeployments).filter(branch => activeBranches.indexOf(branch) !== -1)
   const fileContent = getFileContent(activeDeployedBranches)
   const params = {
     Bucket: bucketName,
