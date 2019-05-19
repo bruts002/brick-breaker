@@ -1,8 +1,8 @@
 import micro from 'micro';
 import GameBoard from 'App/GameBoard/GameBoard';
 import Modal from 'biblioteca/Modal/';
+import TabContainer from 'biblioteca/TabContainer/';
 import './index.css';
-import './tab-container.css';
 
 import LevelI from 'App/interfaces/LevelI';
 import PlayerTypes from 'App/interfaces/PlayerTypes';
@@ -13,42 +13,19 @@ export default class Main {
     private levelSelector: LevelSelector;
     private gameBoard: GameBoard;
     private modal: Modal;
+    private tabContainer: TabContainer;
 
     constructor( private mountNode: HTMLElement ) {
         this.modal = new Modal( false );
-        const tabContainer: HTMLDivElement = document.createElement('div');
-        tabContainer.classList.add('tab-container');
-        tabContainer.innerHTML = `
-        <div class='tab-container__controls'>
-            <button id='section-one-button' class='active'>Play</button>
-            <button id='section-two-button'>Build</button>
-            <div class='filler'></div>
-        </div>
-        <div class='tab-container__content'>
-            <div id='section-one-body'></div>
-            <div id='section-two-body' style='display:none;'>Build Content</div>
-        </div>
-        `;
-        const sectionOneButton: HTMLElement = tabContainer.querySelector('#section-one-button');
-        const sectionTwoButton: HTMLElement = tabContainer.querySelector('#section-two-button');
-        const sectionOneBody: HTMLElement = tabContainer.querySelector('#section-one-body');
-        const sectionTwoBody: HTMLElement = tabContainer.querySelector('#section-two-body');
-        sectionOneButton.addEventListener('click', () => {
-            sectionTwoBody.style.display = 'none';
-            sectionOneBody.style.display = 'flex';
-            sectionOneButton.classList.add('active');
-            sectionTwoButton.classList.remove('active');
-        });
-        sectionTwoButton.addEventListener('click', () => {
-            sectionTwoBody.style.display = 'flex';
-            sectionOneBody.style.display = 'none';
-            sectionTwoButton.classList.add('active');
-            sectionOneButton.classList.remove('active');
-        });
-        this.modal.extensionPoint.appendChild(tabContainer);
+        this.tabContainer = new TabContainer();
+        const playTab: HTMLElement = document.createElement('div');
+        const buildTab: HTMLElement = document.createElement('div');
+        this.tabContainer.addTab('Play', playTab, true);
+        this.tabContainer.addTab('Build', buildTab);
+        this.modal.extensionPoint.appendChild(this.tabContainer.container);
         this.levelSelector = new LevelSelector({
             onStartLevel: this.setLevel.bind(this),
-            extensionPoint: sectionOneBody
+            extensionPoint: playTab
         });
         this.modal.show('');
 
