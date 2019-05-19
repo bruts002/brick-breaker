@@ -1,6 +1,6 @@
 import micro from 'micro';
 import GameBoard from 'App/GameBoard/GameBoard';
-import Modal from 'biblioteca/Modal';
+import Modal from 'biblioteca/Modal/';
 import './index.css';
 import './tab-container.css';
 

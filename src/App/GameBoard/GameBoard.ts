@@ -13,7 +13,7 @@ import Paddle from './Paddle';
 import Guy from './Guy';
 import Bullet from './Bullet';
 import { isCollision, isNear } from './CollisionUtil';
-import Modal from 'biblioteca/Modal';
+import Modal from 'biblioteca/Modal/';
 import UserScore from '../UserScore/UserScore';
 import StatusBar from './StatusBar/StatusBar';
 import Reward from './Reward';
