@@ -15,7 +15,23 @@
 </head>
 
 <body>
-    <div id="game-board"></div>
+  <template id="level-builder-template">
+    <ul class='saved-levels'>
+      <li>One</li>
+      <li>Two</li>
+    </div>
+    <action-bar></action-bar>
+  </template>
+  <template id="action-bar-template">
+    <div>
+      <div>
+        <button class="upload">Upload</button>
+        <button class="create-new">Create New</button>
+      </div>
+      <div class="edit-level-info"></div>
+    </div>
+  </template>
+  <div id="game-board"></div>
 </body>
 
 </html>

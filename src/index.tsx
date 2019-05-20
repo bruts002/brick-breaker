@@ -7,8 +7,9 @@ import './index.css';
 import LevelI from 'App/interfaces/LevelI';
 import PlayerTypes from 'App/interfaces/PlayerTypes';
 import LevelSelector from 'App/LevelSelector/LevelSelector';
+import { ActionBar, LevelBuilder } from 'App/LevelBuilder/';
 
-export default class Main {
+class Main {
 
     private levelSelector: LevelSelector;
     private gameBoard: GameBoard;
@@ -16,10 +17,13 @@ export default class Main {
     private tabContainer: TabContainer;
 
     constructor( private mountNode: HTMLElement ) {
+        this.handleEndGame = this.handleEndGame.bind(this);
+        this.createNewLevel = this.createNewLevel.bind(this);
+
         this.modal = new Modal( false );
         this.tabContainer = new TabContainer();
         const playTab: HTMLElement = document.createElement('div');
-        const buildTab: HTMLElement = document.createElement('div');
+        const buildTab: HTMLElement = document.createElement(LevelBuilder.domName);
         this.tabContainer.addTab('Play', playTab, true);
         this.tabContainer.addTab('Build', buildTab);
         this.modal.extensionPoint.appendChild(this.tabContainer.container);
@@ -28,8 +32,12 @@ export default class Main {
             extensionPoint: playTab
         });
         this.modal.show('');
+        buildTab.addEventListener(ActionBar.create_new_level, this.createNewLevel);
 
-        this.handleEndGame = this.handleEndGame.bind(this);
+    }
+
+    private createNewLevel(): void {
+        alert('creating new level');
     }
 
     private handleEndGame(level: number, message: string) {
@@ -64,6 +72,6 @@ const start = () => new Main( mountNode );
 const xstart = () => micro.render(
     <h1 className='michael'>Hello World</h1>,
     mountNode
-)
+);
 
 start();
