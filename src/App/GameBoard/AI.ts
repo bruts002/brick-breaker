@@ -7,6 +7,7 @@ import { isCollision } from './CollisionUtil';
 
 import Vector from '../interfaces/Vector';
 import Size from '../interfaces/Size';
+import LinePosI from '../interfaces/LinePos';
 
 /**
  * TODO: scoring for the AI
@@ -16,9 +17,9 @@ import Size from '../interfaces/Size';
  *  each ball drop is bad
  */
 
-function makeMove( ai: Paddle|Guy, balls: Array<Ball>, rewards: Array<Reward>, size: Size ): void {
+function makeMove( ai: Paddle|Guy, balls: Array<Ball>, rewards: Array<Reward>, size: Size ): LinePosI[] {
     if ( ai instanceof Paddle ) {
-        makePaddleMove( ai, balls, rewards, size );
+        return makePaddleMove( ai, balls, rewards, size );
     } else if ( ai instanceof Guy ) {
         makeGuyMove( ai, balls, size );
     }
@@ -51,13 +52,13 @@ function catchable( entity: Entity, paddle: Paddle, size: Size ): boolean {
     const distance: number = Math.abs( nearestPaddlePoint - dropPoint.x );
     return ( paddle.moveAmount * movesTillDrop ) > distance;
 }
-function makePaddleMove( paddle: Paddle, balls: Array<Ball>, rewards: Array<Reward>, size: Size ): void {
+function makePaddleMove( paddle: Paddle, balls: Array<Ball>, rewards: Array<Reward>, size: Size ): LinePosI[] {
     // TODO: don't always try to use reward
     paddle.useReward();
     const entitiesToGoFor: Array<Entity> = balls//.concat( rewards )
         .filter( e => catchable( e, paddle, size ) )
         .sort( likelyToFallFirst );
-    movePaddleToEntity(
+    return movePaddleToEntity(
         paddle,
         entitiesToGoFor,
         size
@@ -79,7 +80,38 @@ function getLowestEntity( entities: Array<Entity> ): Entity {
     });
     return lowestEntity;
 }
-function movePaddleToEntity( paddle: Paddle, entities: Array<Entity>, size: Size ): void {
+
+function getLineCoords(entity: Entity, boardSize: Size): LinePosI[] {
+    const lines: LinePosI[] = [];
+    let current: Vector = entity.point;
+    let traj: Vector = { ...entity.getTraj() };
+    while (current.y !== boardSize.height) getLine();
+    return lines;
+
+    function getLine() {
+        const d2x: number = traj.x > 0 ? boardSize.width - current.x : current.x;
+        const d2y: number = traj.y > 0 ? boardSize.height - current.y : current.y;
+        const end: Vector = {x: 0, y: 0};
+        if (d2x < d2y) {
+            end.x = traj.x > 0 ? boardSize.width : 0;
+            end.y = current.y + (traj.y > 0 ? 1 : -1) * (d2x);
+            traj.x = -traj.x;
+        } else {
+            end.x = current.x + (traj.x > 0 ? 1 : -1) * (d2y);
+            end.y = traj.y > 0 ? boardSize.height : 0;
+            traj.y = -traj.y;
+        }
+        lines.push({
+            x1: current.x,
+            y1: current.y,
+            x2: end.x,
+            y2: end.y
+        });
+        current = { ...end };
+    }
+}
+
+function movePaddleToEntity( paddle: Paddle, entities: Array<Entity>, size: Size ): LinePosI[] {
     if ( entities.length === 0 ) return;
     const paddleHeight: number = paddle.getSize().height;
     const onlyOneLeft: boolean = entities.length === 1;
@@ -90,6 +122,7 @@ function movePaddleToEntity( paddle: Paddle, entities: Array<Entity>, size: Size
     } else if ( isRight( nxtPoint, paddle ) || canAndShouldMoveRight( nxtNxtPoint, nxtPoint, paddle ) ) {
         paddle.moveRight();
     }
+    return getLineCoords(entities[0], size);
 }
 
 // function getNextMove( entity: Entity, dropPoint: Vector ): Entity {

@@ -19,6 +19,7 @@ import UserScore from '../UserScore/UserScore';
 import StatusBar from './StatusBar/StatusBar';
 import Reward from './Reward';
 import RewardEnum from '../interfaces/Reward';
+import LinePosI from '../interfaces/LinePos';
 
 export default class GameBoard {
     private activeKeys: Map<number, boolean>;
@@ -499,12 +500,30 @@ export default class GameBoard {
         this.player.useReward();
     }
     private updateAI(): void {
-        AI.makeMove(
+        const lines: LinePosI[] = AI.makeMove(
             this.ai,
             this.balls,
             this.fallingRewards,
             this.size
         );
+
+        this.removePredictionLines();
+        if (lines && lines.length) {
+            lines.forEach(({ x1, x2, y1, y2 }) => {
+                const line: SVGLineElement = document.createElementNS(SVGNAMESPACE, 'line');
+                line.setAttribute('x1', `${x1}`);
+                line.setAttribute('x2', `${x2}`);
+                line.setAttribute('y1', `${y1}`);
+                line.setAttribute('y2', `${y2}`);
+                line.setAttribute('stroke', 'red');
+                line.setAttribute('stroke-width', '0.1');
+                line.setAttribute('prediction-line', '');
+                this.domElement.appendChild(line);
+            });
+        }
+    }
+    private removePredictionLines(): void {
+        this.domElement.querySelectorAll('line[prediction-line]').forEach(l => this.domElement.removeChild(l));
     }
     private pauseGame(): void {
         if ( this.isPaused ) {
