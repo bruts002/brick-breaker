@@ -15,6 +15,37 @@
 </head>
 
 <body>
+  <template id="level-builder-template">
+    <style>
+      svg {
+        flex-basis: 85%;
+        border: 1px solid black;
+      }
+      .controls {
+        padding: 0 10px;
+        flex-basis: 15%;
+        display: flex;
+        flex-direction: column;
+      }
+      .active {
+        border: 2px solid lightseagreen;
+        margin-top: auto;
+        flex-basis: 50px;
+      }
+    </style>
+    <div style='display: flex;'>
+      <svg height="100%" viewBox='0 0 100 50'></svg>
+      <div class='controls'>
+        <h2>Select Tool</h2>
+        <ul>
+          <li>thing one</li>
+          <li>thing two</li>
+          <li>thing three</li>
+        </ul>
+        <div class="active"></div>
+      </div>
+    </div>
+  </template>
   <template id="level-builder-admin-template">
     <ul class='saved-levels'>
       <li>One</li>

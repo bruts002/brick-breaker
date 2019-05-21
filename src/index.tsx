@@ -7,7 +7,7 @@ import './index.css';
 import LevelI from 'App/interfaces/LevelI';
 import PlayerTypes from 'App/interfaces/PlayerTypes';
 import LevelSelector from 'App/LevelSelector/LevelSelector';
-import { ActionBar, LevelBuilderAdmin } from 'App/LevelBuilder/';
+import { ActionBar, LevelBuilderAdmin, LevelBuilder } from 'App/LevelBuilder/';
 
 class Main {
 
@@ -37,7 +37,8 @@ class Main {
     }
 
     private createNewLevel(): void {
-        alert('creating new level');
+        this.mountNode.appendChild(document.createElement(LevelBuilder.domName));
+        this.modal.hide();
     }
 
     private handleEndGame(level: number, message: string) {
