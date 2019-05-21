@@ -27,9 +27,15 @@
         display: flex;
         flex-direction: column;
       }
+      ul {
+        margin-bottom: auto;
+      }
+      .size {
+        display: flex;
+        flex-direction: column;
+      }
       .active {
         border: 2px solid lightseagreen;
-        margin-top: auto;
         flex-basis: 50px;
       }
     </style>
@@ -42,6 +48,18 @@
           <li>thing two</li>
           <li>thing three</li>
         </ul>
+        <div class="size">
+          <label for='show-grid-lines'>
+            <input id='show-grid-lines' type='checkbox' checked='' />
+            Show Grid Lines
+          </label>
+          <label for='grid-width'>
+            Width: <input id='grid-width' type='number' value='100'/>
+          </label>
+          <label for='grid-height'>
+            Height: <input id='grid-height' type='number' value='50'/>
+          </label>
+        </div>
         <div class="active"></div>
       </div>
     </div>
