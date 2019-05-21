@@ -7,7 +7,7 @@ import './index.css';
 import LevelI from 'App/interfaces/LevelI';
 import PlayerTypes from 'App/interfaces/PlayerTypes';
 import LevelSelector from 'App/LevelSelector/LevelSelector';
-import { ActionBar, LevelBuilder } from 'App/LevelBuilder/';
+import { ActionBar, LevelBuilderAdmin } from 'App/LevelBuilder/';
 
 class Main {
 
@@ -23,7 +23,7 @@ class Main {
         this.modal = new Modal( false );
         this.tabContainer = new TabContainer();
         const playTab: HTMLElement = document.createElement('div');
-        const buildTab: HTMLElement = document.createElement(LevelBuilder.domName);
+        const buildTab: HTMLElement = document.createElement(LevelBuilderAdmin.domName);
         this.tabContainer.addTab('Play', playTab, true);
         this.tabContainer.addTab('Build', buildTab);
         this.modal.extensionPoint.appendChild(this.tabContainer.container);

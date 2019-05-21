@@ -1,21 +1,21 @@
 import { ActionBar } from './ActionBar';
 
-export class LevelBuilder extends HTMLElement {
+export class LevelBuilderAdmin extends HTMLElement {
   private static template: HTMLTemplateElement;
 
-  public static domName: string = 'level-builder';
+  public static domName: string = 'level-builder-admin';
 
   // helpers
   private static getTemplate(): HTMLElement {
-    if (!LevelBuilder.template) {
-      LevelBuilder.template = <HTMLTemplateElement>document.getElementById('level-builder-template');
+    if (!LevelBuilderAdmin.template) {
+      LevelBuilderAdmin.template = <HTMLTemplateElement>document.getElementById('level-builder-admin-template');
     }
-    return <HTMLElement>LevelBuilder.template.content.cloneNode(true);
+    return <HTMLElement>LevelBuilderAdmin.template.content.cloneNode(true);
   }
   constructor() {
     super();
     const shadow: ShadowRoot = this.attachShadow({ mode: 'open' });
-    const container: HTMLElement = LevelBuilder.getTemplate();
+    const container: HTMLElement = LevelBuilderAdmin.getTemplate();
     container.querySelector(ActionBar.domName).addEventListener(ActionBar.create_new_level, () => {
       this.dispatchEvent(new Event(ActionBar.create_new_level, { bubbles: true }));
     });

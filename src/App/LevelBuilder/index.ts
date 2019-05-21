@@ -1,7 +1,7 @@
-import { LevelBuilder } from './LevelBuilder';
+import { LevelBuilderAdmin } from './LevelBuilderAdmin';
 import { ActionBar } from './ActionBar';
 
-export { ActionBar, LevelBuilder };
+export { ActionBar, LevelBuilderAdmin };
 
-customElements.define(LevelBuilder.domName, LevelBuilder);
+customElements.define(LevelBuilderAdmin.domName, LevelBuilderAdmin);
 customElements.define(ActionBar.domName, ActionBar);
